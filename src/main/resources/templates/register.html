@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Регистрация</title>
+</head>
+<body>
+<section layout:fragment="content">
+  <div class="container mt-5" style="max-width: 500px;">
+    <h3>Регистрация</h3>
+    <form action="/register" method="post">
+      <div class="mb-3">
+        <label>Имя пользователя</label>
+        <input class="form-control" type="text" name="username" required>
+      </div>
+      <div class="mb-3">
+        <label>Пароль</label>
+        <input class="form-control" type="password" name="password" required>
+      </div>
+      <div class="mb-3">
+        <label>Повторите пароль</label>
+        <input class="form-control" type="password" name="confirmPassword" required>
+      </div>
+      <div class="mb-3">
+        <label>Секретное слово (ВЛАДЕЛЕЦ / ЛЕСНИК)</label>
+        <input class="form-control" type="text" name="secretWord" required>
+      </div>
+      <button class="btn btn-primary" type="submit">Зарегистрироваться</button>
+    </form>
+    <p th:if="${error}" th:text="${error}" class="text-danger mt-3"></p>
+  </div>
+</section>
+</body>
+</html>

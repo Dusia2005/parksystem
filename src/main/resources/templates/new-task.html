@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Создать задачу</title>
+</head>
+<body>
+<section layout:fragment="content">
+  <div class="container mt-5" style="max-width: 600px;">
+    <h2>Создание новой задачи</h2>
+    <form th:action="@{/tasks/new}" method="post" th:object="${task}">
+      <div class="mb-3">
+        <label for="description" class="form-label">Описание задачи</label>
+        <textarea class="form-control" id="description" th:field="*{description}" rows="3" required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="forester" class="form-label">Назначить лесника</label>
+        <select class="form-select" id="forester" th:field="*{foresterId}" required>
+          <option th:each="user : ${foresters}"
+                  th:value="${user.id}"
+                  th:text="${user.username}">Лесник</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-success">Создать задачу</button>
+    </form>
+
+    <div th:if="${success}" class="alert alert-success mt-3" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+  </div>
+</section>
+</body>
+</html>

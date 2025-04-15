@@ -1,0 +1,28 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Вход</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="container mt-5" style="max-width: 400px;">
+        <h3 class="mb-3">Вход</h3>
+        <form action="/login" method="post">
+            <div class="mb-3">
+                <input class="form-control" type="text" name="username" placeholder="Логин" required>
+            </div>
+            <div class="mb-3">
+                <input class="form-control" type="password" name="password" placeholder="Пароль" required>
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Войти</button>
+        </form>
+        <div class="text-center mt-3">
+            <a th:href="@{/register}" class="text-muted small">Нет аккаунта? Зарегистрироваться</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>
