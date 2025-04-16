@@ -3,13 +3,27 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-  <title>Главная</title>
+  <title>Лесная система</title>
 </head>
 <body>
 <section layout:fragment="content">
-  <div class="container mt-5">
-    <h1>Добро пожаловать в Лесную систему</h1>
-    <p>Здесь вы можете управлять задачами и отчетами лесников.</p>
+  <div class="container mt-5 text-center">
+    <div class="card shadow-lg p-4 bg-light border-0 rounded-4">
+      <div class="card-body">
+        <h1 class="display-5 fw-bold text-success mb-4">Добро пожаловать в Лесную систему 🌲</h1>
+        <p class="fs-5 text-muted">
+          Здесь вы можете управлять <strong>отчетами</strong> и <strong>задачами</strong> лесников.
+          В зависимости от вашей роли вы получите доступ к нужному разделу.
+        </p>
+
+        <hr class="my-4">
+
+        <div class="d-flex justify-content-center gap-3">
+          <a href="/login" class="btn btn-success btn-lg px-4">Войти</a>
+          <a href="/register" class="btn btn-outline-success btn-lg px-4">Регистрация</a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 </body>

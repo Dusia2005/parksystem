@@ -3,6 +3,7 @@ package com.project.parksystem.service;
 import com.project.parksystem.model.User;
 import com.project.parksystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +24,6 @@ public class UserService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     public void registerUser(User user) {
-        System.out.println("Регистрируем пользователя: " + user.getUsername() + " с ролью " + user.getRole());
 
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new RuntimeException("Пользователь уже существует!");
@@ -38,6 +38,7 @@ public class UserService implements UserDetailsService {
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
 
     // ✅ Говорим Spring Security, как загружать пользователя
     @Override

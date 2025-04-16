@@ -4,6 +4,7 @@ import com.project.parksystem.model.Role;
 import com.project.parksystem.model.User;
 import com.project.parksystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +27,18 @@ public class AuthController {
     @GetMapping("/register")
     public String registerPage() {
         return "register"; // templates/register.html
+    }
+
+    @GetMapping("/")
+    public String index(Authentication authentication) {
+        if (authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"))) {
+            return "redirect:/tasks";
+        } else if (authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_FORESTER"))) {
+            return "redirect:/reports";
+        }
+        return "index"; // если просто гость
     }
 
     @PostMapping("/register")
@@ -56,7 +69,7 @@ public class AuthController {
         // Создаём пользователя
         User user = new User();
         user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setPassword(password);
         user.setRole(role);
 
         // Сохраняем в базе

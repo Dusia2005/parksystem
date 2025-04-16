@@ -13,15 +13,15 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" th:href="@{/}">Главная</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="@{/index}">Главная</a></li>
           <!-- Для лесника -->
           <li class="nav-item" th:if="${#authorization.expression('hasRole(''FORESTER'')')}">
-            <a class="nav-link" th:href="@{/tasks}">Задачи</a>
+            <a class="nav-link" th:href="@{/reports}">Задачи</a>
           </li>
 
           <!-- Для владельца -->
           <li class="nav-item" th:if="${#authorization.expression('hasRole(''OWNER'')')}">
-            <a class="nav-link" th:href="@{/reports}">Отчёты</a>
+            <a class="nav-link" th:href="@{/tasks}">Отчёты</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" th:href="@{/login}">Войти</a>
