@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Создать задачу</title>
+</head>
+<body>
+<section layout:fragment="content">
+  <div class="container mt-5" style="max-width: 700px;">
+    <h2>Создание новой задачи</h2>
+    <form th:action="@{/tasks/new}" method="post" th:object="${task}">
+      <div class="mb-3">
+        <label th:for="*{description}" class="form-label">Описание</label>
+        <textarea class="form-control" th:field="*{description}" required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label th:for="*{foresterId}" class="form-label">Лесник</label>
+        <select class="form-select" th:field="*{foresterId}" required>
+          <option th:each="user : ${foresters}" th:value="${user.id}" th:text="${user.username}"></option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label th:for="*{plantName}" class="form-label">Растение</label>
+        <select class="form-select" th:field="*{plantName}" required>
+          <option th:each="plant : ${allowedPlants}" th:value="${plant}" th:text="${plant}"></option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label th:for="*{action}" class="form-label">Действие</label>
+        <select id="action" class="form-select" th:field="*{action}" onchange="setIcon()">
+        <option value="PLANTING">Посадка</option>
+          <option value="CUTTING">Вырубка</option>
+          <option value="WATERING">Полив</option>
+          <option value="FIRE_EXTINGUISHING">Тушение пожара</option>
+          <option value="PATROLLING">Обход</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Отметьте место на карте:</label>
+        <div style="position: relative;">
+          <img src="/assets/les.jpg" id="map" style="width: 100%; max-width: 600px;" />
+          <div id="marker" style="position: absolute; font-size: 24px;"></div>
+        </div>
+      </div>
+
+      <input type="hidden" th:field="*{coordX}"/>
+      <input type="hidden" th:field="*{coordY}"/>
+
+      <button type="submit" class="btn btn-success">Создать задачу</button>
+    </form>
+
+    <div th:if="${success}" class="alert alert-success mt-3" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+  </div>
+
+  <script>
+    let currentIcon = '🌱';
+
+    function setIcon() {
+      const action = document.getElementById('action').value;
+      switch (action) {
+        case 'CUTTING': currentIcon = '❌'; break;
+        case 'WATERING': currentIcon = '💧'; break;
+        case 'PLANTING': currentIcon = '🌱'; break;
+        case 'PATROLLING': currentIcon = '🚶'; break;
+        case 'FIRE_EXTINGUISHING': currentIcon = '🔥'; break;
+        default: currentIcon = '📍';
+      }
+    }
+
+    document.getElementById('map').addEventListener('click', function (e) {
+      const rect = this.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      document.getElementById('coordX').value = Math.round(x);
+      document.getElementById('coordY').value = Math.round(y);
+
+      const marker = document.getElementById('marker');
+      marker.style.left = x + 'px';
+      marker.style.top = y + 'px';
+      marker.innerText = currentIcon;
+    });
+  </script>
+</section>
+</body>
+</html>

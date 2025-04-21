@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Мои задачи</title>
+</head>
+<body>
+<section layout:fragment="content">
+  <div class="container mt-5">
+    <h2>Назначенные задачи</h2>
+    <table class="table table-bordered">
+      <thead class="table-dark">
+      <tr>
+        <th>ID</th><th>Описание</th><th>Действие</th><th>Растение</th><th>Статус</th><th>Дата</th><th>Действия</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="task : ${tasks}">
+        <td th:text="${task.id}"></td>
+        <td th:text="${task.description}"></td>
+        <td>
+                  <span th:switch="${task.action}">
+                    <span th:case="PLANTING">Посадка</span>
+                    <span th:case="CUTTING">Вырубка</span>
+                    <span th:case="WATERING">Полив</span>
+                    <span th:case="FIRE_EXTINGUISHING">Тушение пожара</span>
+                    <span th:case="PATROLLING">Обход</span>
+                    <span th:case="*">Неизвестно</span>
+                  </span>
+        </td>
+        <td th:text="${task.plant.name}"> </td>
+        <td>
+          <span th:if="${task.status.name() == 'PENDING'}">Ожидает</span>
+          <span th:if="${task.status.name() == 'IN_PROGRESS'}">В процессе</span>
+          <span th:if="${task.status.name() == 'COMPLETED'}">Выполнена</span>
+        </td>
+        <td th:text="${#temporals.format(task.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+        <td>
+          <form th:if="${task.status.name() == 'PENDING'}" th:action="@{/tasks/start/{id}(id=${task.id})}" method="post">
+            <button class="btn btn-primary">Принять</button>
+          </form>
+
+          <form th:if="${task.status.name() == 'IN_PROGRESS'}" th:action="@{/tasks/complete/{id}(id=${task.id})}" method="post">
+            <input type="text" name="reportText" placeholder="Отчёт" required class="form-control mb-2">
+            <button class="btn btn-success">Завершить</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.project.parksystem.service;
 
+import com.project.parksystem.model.Role;
 import com.project.parksystem.model.User;
 import com.project.parksystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -22,6 +24,15 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    public List<User> getAllForesters() {
+        return userRepository.findAllByRole(Role.FORESTER);
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 
     public void registerUser(User user) {
 

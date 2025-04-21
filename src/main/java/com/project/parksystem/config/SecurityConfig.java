@@ -19,7 +19,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/", "/index", "/login", "/register").permitAll()
                         .requestMatchers("/reports").hasRole("FORESTER")
                         .requestMatchers("/tasks").hasRole("OWNER")
                         .anyRequest().authenticated()

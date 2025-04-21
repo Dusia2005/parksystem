@@ -10,17 +10,37 @@
   <div class="container mt-5 text-center">
     <div class="card shadow-lg p-4 bg-light border-0 rounded-4">
       <div class="card-body">
-        <h1 class="display-5 fw-bold text-success mb-4">Добро пожаловать в Лесную систему 🌲</h1>
-        <p class="fs-5 text-muted">
-          Здесь вы можете управлять <strong>отчетами</strong> и <strong>задачами</strong> лесников.
-          В зависимости от вашей роли вы получите доступ к нужному разделу.
-        </p>
 
-        <hr class="my-4">
+        <div th:if="${role == 'GUEST'}">
 
-        <div class="d-flex justify-content-center gap-3">
-          <a href="/login" class="btn btn-success btn-lg px-4">Войти</a>
-          <a href="/register" class="btn btn-outline-success btn-lg px-4">Регистрация</a>
+          <h1 class="display-5 fw-bold text-success mb-4">Добро пожаловать в Лесную систему 🌲</h1>
+          <p class="fs-5 text-muted">
+            Здесь вы можете управлять <strong>отчетами</strong> и <strong>задачами</strong> лесников.
+            В зависимости от вашей роли вы получите доступ к нужному разделу.
+          </p>
+          <hr class="my-4">
+          <div class="d-flex justify-content-center gap-3">
+            <a href="/login" class="btn btn-success btn-lg px-4">Войти</a>
+            <a href="/register" class="btn btn-outline-success btn-lg px-4">Регистрация</a>
+          </div>
+        </div>
+
+        <div th:if="${role == 'FORESTER'}">
+          <h1 class="display-5 fw-bold text-success mb-4">Добро пожаловать в Лесную систему 🌲</h1>
+          <p class="fs-5 text-muted">
+            <h3 th:text="'Привет, лесник ' + ${username} + '!'"></h3>
+            Здесь ты можешь управлять своими <strong>отчетами</strong>, чтобы быстро и легко показать проделанную работу!
+            Во вкладке Отчеты ты можешь просматривать все свои задачи, выполнять их завершать свою задачу.
+          </p>
+        </div>
+
+        <div th:if="${role == 'OWNER'}">
+          <h1 class="display-5 fw-bold text-success mb-4">Добро пожаловать в Лесную систему 🌲</h1>
+          <p class="fs-5 text-muted">
+          <h3 th:text="'Привет, владелец ' + ${username} + '!'"></h3>
+          Здесь ты можешь управлять <strong>задачами</strong> лесников, чтобы быстро и легко руководить процессом работы.
+          Во вкладке Задачи ты можешь назначать задачи определенным лесникам, и ждать его отчета о выполнении работы.
+          </p>
         </div>
       </div>
     </div>

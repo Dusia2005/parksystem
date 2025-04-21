@@ -1,4 +1,4 @@
-package com.project.parksystem.сontroller;
+package com.project.parksystem.controller;
 
 import com.project.parksystem.model.Report;
 import com.project.parksystem.model.User;
@@ -42,7 +42,7 @@ public class ReportController {
     public String newReportForm(Model model) {
         model.addAttribute("report", new Report());
         model.addAttribute("tasks", taskService.getAllTasks());
-        return "new-report"; // Форма создания отчета (templates/new-task.html)
+        return "new-report"; // Форма создания отчета (templates/create-task.html)
     }
 
     @PostMapping("/save")

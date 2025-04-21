@@ -1,4 +1,4 @@
-package com.project.parksystem.сontroller;
+package com.project.parksystem.controller;
 
 import com.project.parksystem.model.Role;
 import com.project.parksystem.model.User;
@@ -30,16 +30,23 @@ public class AuthController {
     }
 
     @GetMapping("/")
-    public String index(Authentication authentication) {
-        if (authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"))) {
-            return "redirect:/tasks";
-        } else if (authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_FORESTER"))) {
-            return "redirect:/reports";
+    public String index(Model model, Authentication authentication) {
+        if (authentication != null) {
+            if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"))) {
+                model.addAttribute("role", "OWNER");
+                model.addAttribute("username", authentication.getName());
+            } else if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_FORESTER"))) {
+                model.addAttribute("role", "FORESTER");
+                model.addAttribute("username", authentication.getName());
+            } else {
+                model.addAttribute("role", "USER"); // вдруг какая-то другая роль
+            }
+        } else {
+            model.addAttribute("role", "GUEST");
         }
-        return "index"; // если просто гость
+        return "index";
     }
+
 
     @PostMapping("/register")
     public String registerUser(
