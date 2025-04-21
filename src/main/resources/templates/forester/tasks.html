@@ -20,7 +20,7 @@
         <td th:text="${task.id}"></td>
         <td th:text="${task.description}"></td>
         <td>
-                  <span th:switch="${task.action}">
+                  <span th:switch="${task.action.name}">
                     <span th:case="PLANTING">Посадка</span>
                     <span th:case="CUTTING">Вырубка</span>
                     <span th:case="WATERING">Полив</span>
@@ -45,6 +45,7 @@
             <input type="text" name="reportText" placeholder="Отчёт" required class="form-control mb-2">
             <button class="btn btn-success">Завершить</button>
           </form>
+          <a th:href="@{/tasks/{id}/map(id=${task.id})}" class="btn btn-info btn-sm">Открыть карту</a>
         </td>
       </tr>
       </tbody>

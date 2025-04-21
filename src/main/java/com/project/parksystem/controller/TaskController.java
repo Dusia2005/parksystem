@@ -125,4 +125,16 @@ public class TaskController {
 
         return "redirect:/tasks/forester/tasks";
     }
+
+    @GetMapping("/{id}/map")
+    public String showTaskMap(@PathVariable Long id, Model model, Principal principal) {
+        Task task = taskService.findById(id); // Убедись, что у тебя есть такой метод
+        User currentUser = userService.findByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        model.addAttribute("task", task);
+        model.addAttribute("userRole", currentUser.getRole().name()); // например: "FORESTER" или "OWNER"
+
+        return "map";
+    }
 }

@@ -25,8 +25,16 @@
           <li class="nav-item" th:if="${#authorization.expression('hasRole(''OWNER'')')}">
             <a class="nav-link" th:href="@{/tasks}">Задачи</a>
           </li>
-          <li class="nav-item">
+          <!-- Если пользователь не вошёл в систему -->
+          <li class="nav-item" th:if="${not #authorization.expression('isAuthenticated()')}">
             <a class="nav-link" th:href="@{/login}">Войти</a>
+          </li>
+
+          <!-- Если пользователь вошёл -->
+          <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+              <button type="submit" class="nav-link btn btn-link text-white" style="text-decoration: none;">Выйти</button>
+            </form>
           </li>
         </ul>
       </div>

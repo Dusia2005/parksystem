@@ -33,13 +33,15 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)       // ⬅️ сбрасываем сессию
+                        .clearAuthentication(true)         // ⬅️ очищаем аутентификацию
+                        .deleteCookies("JSESSIONID")       // ⬅️ удаляем cookie сессии
                         .permitAll()
                 )
-                .userDetailsService(userDetailsService); // 👈 Spring сам внедрит UserService
+                .userDetailsService(userDetailsService); // 👈 внедрение сервиса пользователей
 
         return http.build();
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

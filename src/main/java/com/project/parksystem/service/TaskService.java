@@ -50,8 +50,6 @@ public class TaskService {
     }
 
     public void createTaskFromForm(TaskForm form) {
-        System.out.println(">>> action from form: " + form.getAction());
-
         Task task = new Task();
         task.setDescription(form.getDescription());
         task.setForester(userService.getUserById(form.getForesterId()));
@@ -78,5 +76,9 @@ public class TaskService {
 
     public void save(Task task) {
         taskRepository.save(task);
+    }
+    public Task findById(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Задача не найдена с id: " + id));
     }
 }

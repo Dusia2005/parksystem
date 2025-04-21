@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Карта задачи</title>
+</head>
+<body>
+<section layout:fragment="content">
+  <div class="container mt-5">
+    <h2>Карта задачи</h2>
+    <p><strong>Описание:</strong> <span th:text="${task.description}"></span></p>
+
+    <div style="position: relative;">
+      <img src="/assets/les.jpg" id="map" style="width: 100%; max-width: 600px;" />
+      <div id="marker" style="position: absolute; font-size: 32px;"></div>
+    </div>
+
+    <a th:if="${userRole == 'OWNER'}" th:href="@{/tasks}" class="btn btn-secondary mt-3">Назад</a>
+    <a th:if="${userRole == 'FORESTER'}" th:href="@{/tasks/forester/tasks}" class="btn btn-secondary mt-3">Назад</a>
+
+  </div>
+
+  <script th:inline="javascript">
+    const x = [[${task.coordX}]];
+    const y = [[${task.coordY}]];
+    const action = [[${task.action.name}]];
+
+    let icon = '📍';
+    switch (action) {
+      case 'PLANTING': icon = '🌱'; break;
+      case 'CUTTING': icon = '❌'; break;
+      case 'WATERING': icon = '💧'; break;
+      case 'FIRE_EXTINGUISHING': icon = '🔥'; break;
+      case 'PATROLLING': icon = '🚶'; break;
+    }
+
+    const marker = document.getElementById('marker');
+    marker.style.left = x + 'px';
+    marker.style.top = y + 'px';
+    marker.innerText = icon;
+  </script>
+</section>
+</body>
+</html>
