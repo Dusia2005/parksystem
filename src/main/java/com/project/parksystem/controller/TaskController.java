@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/tasks")
@@ -36,11 +37,13 @@ public class TaskController {
     @Autowired
     private UserService userService;
 
-    @GetMapping
+    @GetMapping("/owner-tasks")
     public String listTasks(Model model) {
-        List<Task> tasks = taskService.getAllTasks();
-        HashMap<Long, String> taskReports = new HashMap<>();
+        List<Task> tasks = taskService.getAllTasks().stream()
+                .filter(task -> !task.isApprovedByOwner())
+                .collect(Collectors.toList());
 
+        HashMap<Long, String> taskReports = new HashMap<>();
         for (Task task : tasks) {
             reportService.getReportByTask(task).ifPresent(report ->
                     taskReports.put(task.getId(), report.getReportText())
@@ -48,14 +51,19 @@ public class TaskController {
         }
 
         model.addAttribute("tasks", tasks);
-        model.addAttribute("taskReports", taskReports); // Добавим отчёты к задачам
-        return "tasks";
+        model.addAttribute("taskReports", taskReports);
+        return "owner-tasks";
     }
 
     @PostMapping("/approve/{taskId}")
     public String approveTask(@PathVariable Long taskId) {
-        taskService.approveTask(taskId);
-        return "redirect:/tasks";
+        Task task = taskService.getById(taskId); // сначала получаем задачу
+        task.setApprovedByOwner(true); // ставим флажок
+        task.setCompletedByOwnerAt(LocalDateTime.now()); // ставим дату завершения
+        task.setUpdatedAt(LocalDateTime.now()); // обновляем дату обновления (опционально)
+        taskService.save(task); // сохраняем изменения
+
+        return "redirect:/tasks/owner-tasks"; // редиректим обратно
     }
 
     @GetMapping("/new")
@@ -83,16 +91,16 @@ public class TaskController {
 
         taskService.createTaskFromForm(form);
         model.addAttribute("success", "Задача успешно создана!");
-        return "redirect:/tasks";
+        return "redirect:/tasks/owner-tasks";
     }
 
-    @GetMapping("/forester/tasks")
+    @GetMapping("/forester-tasks")
     public String showTasksForForester(Model model, Principal principal) {
         User forester = userService.findByUsername(principal.getName())
                 .orElseThrow(() -> new RuntimeException("Лесник не найден"));
         List<Task> tasks = taskService.getTasksForForester(forester);
         model.addAttribute("tasks", tasks);
-        return "forester/tasks";
+        return "forester-tasks";
     }
 
     @PostMapping("/start/{id}")
@@ -101,12 +109,24 @@ public class TaskController {
         task.setStatus(Status.IN_PROGRESS);
         task.setUpdatedAt(LocalDateTime.now());
         taskService.save(task);
-        return "redirect:/tasks/forester/tasks";
+        return "redirect:/tasks/forester-tasks";
     }
 
 
     @PostMapping("/complete/{id}")
-    public String completeTask(@PathVariable Long id, @RequestParam String reportText, Principal principal) {
+    public String completeTask(@PathVariable Long id, @RequestParam String reportText, Principal principal, Model model) {
+        if (reportText == null || reportText.trim().isEmpty()) {
+            // Получаем задачу и список задач снова, чтобы вернуть всё на страницу
+            Task task = taskService.getById(id);
+            User forester = userService.findByUsername(principal.getName())
+                    .orElseThrow(() -> new RuntimeException("Лесник не найден"));
+            List<Task> tasks = taskService.getTasksForForester(forester);
+
+            model.addAttribute("tasks", tasks);
+            model.addAttribute("error", "Пожалуйста, заполните отчёт перед завершением задачи.");
+            return "forester-tasks";
+        }
+
         Task task = taskService.getById(id);
         task.setStatus(Status.COMPLETED);
         task.setUpdatedAt(LocalDateTime.now());
@@ -114,7 +134,6 @@ public class TaskController {
 
         User forester = userService.findByUsername(principal.getName())
                 .orElseThrow(() -> new RuntimeException("Лесник не найден"));
-        List<Task> tasks = taskService.getTasksForForester(forester);
 
         Report report = new Report();
         report.setTask(task);
@@ -123,7 +142,7 @@ public class TaskController {
         report.setCreatedAt(LocalDateTime.now());
         reportService.save(report);
 
-        return "redirect:/tasks/forester/tasks";
+        return "redirect:/tasks/forester-tasks";
     }
 
     @GetMapping("/{id}/map")
@@ -137,4 +156,28 @@ public class TaskController {
 
         return "map";
     }
+
+    @GetMapping("/history")
+    public String showTaskHistory(Model model) {
+        List<Task> historyTasks = taskService.getAllTasks().stream()
+                .filter(Task::isApprovedByOwner)
+                .collect(Collectors.toList());
+
+        HashMap<Long, String> taskReports = new HashMap<>();
+        for (Task task : historyTasks) {
+            reportService.getReportByTask(task).ifPresent(report ->
+                    taskReports.put(task.getId(), report.getReportText())
+            );
+        }
+
+        model.addAttribute("tasks", historyTasks);
+        model.addAttribute("taskReports", taskReports);
+        return "history";
+    }
+    @PostMapping("/delete/{id}")
+    public String deleteTask(@PathVariable Long id) {
+        taskService.deleteById(id);
+        return "redirect:/tasks/history";
+    }
+
 }

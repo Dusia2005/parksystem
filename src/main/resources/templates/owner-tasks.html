@@ -32,9 +32,9 @@
                 </td>
                 <td th:text="${task.plant.name}"> </td>
                 <td>
-                    <span th:if="${task.status.name() == 'PENDING'}">Ожидает</span>
-                    <span th:if="${task.status.name() == 'IN_PROGRESS'}">В процессе</span>
-                    <span th:if="${task.status.name() == 'COMPLETED'}">Выполнена</span>
+                    <span th:if="${task.status.name() == 'PENDING'}" class="badge bg-danger text-white">Ожидает</span>
+                    <span th:if="${task.status.name() == 'IN_PROGRESS'}" class="badge bg-info text-dark">В процессе</span>
+                    <span th:if="${task.status.name() == 'COMPLETED'}" class="badge bg-success text-white">Выполнена</span>
                 </td>
                 <td>
                   <span th:if="${taskReports.containsKey(task.id)}"

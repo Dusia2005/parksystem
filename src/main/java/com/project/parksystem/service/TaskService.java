@@ -22,6 +22,8 @@ public class TaskService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ReportService reportService;
 
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
@@ -80,5 +82,10 @@ public class TaskService {
     public Task findById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Задача не найдена с id: " + id));
+    }
+    public void deleteById(Long id) {
+        Task task = taskRepository.findById(id).orElseThrow();
+        reportService.deleteByTask(task); // сначала удалить отчёт, если есть
+        taskRepository.delete(task);
     }
 }

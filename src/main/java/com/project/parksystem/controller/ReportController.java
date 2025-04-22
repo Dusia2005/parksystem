@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +33,19 @@ public class ReportController {
     private UserService userService;
 
     @GetMapping
-    public String listReports(Model model) {
-        List<Report> reports = reportService.getAllReports();
+    public String listReports(Model model, Principal principal) {
+        User user = userService.findByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        List<Report> reports;
+        if (user.getRole().name().equals("OWNER")) {
+            reports = reportService.getAllReports(); // Все отчёты
+        } else {
+            reports = reportService.getReportsByForester(user); // Только свои
+        }
+
         model.addAttribute("reports", reports);
-        return "reports"; // templates/reports.html
+        return "reports";
     }
 
     @GetMapping("/new")

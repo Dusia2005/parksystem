@@ -2,6 +2,7 @@ package com.project.parksystem.service;
 
 import com.project.parksystem.model.Report;
 import com.project.parksystem.model.Task;
+import com.project.parksystem.model.User;
 import com.project.parksystem.repository.ReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,5 +33,11 @@ public class ReportService {
     }
     public Optional<Report> getReportByTask(Task task) {
         return reportRepository.findByTask(task);
+    }
+    public List<Report> getReportsByForester(User forester) {
+        return reportRepository.findAllByForester(forester);
+    }
+    public void deleteByTask(Task task) {
+        reportRepository.findByTask(task).ifPresent(reportRepository::delete);
     }
 }

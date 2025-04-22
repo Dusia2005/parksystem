@@ -35,6 +35,9 @@ public class Task {
     @Column(name = "approved_by_owner", nullable = false)
     private boolean approvedByOwner = false;
 
+    @Column(name = "completed_by_owner_at")
+    private LocalDateTime completedByOwnerAt;
+
     // Добавь, если используешь: координаты
     private Integer coordX;
     private Integer coordY;
@@ -78,5 +81,13 @@ public class Task {
 
     public void setApprovedByOwner(boolean approvedByOwner) {
         this.approvedByOwner = approvedByOwner;
+    }
+
+    public LocalDateTime getCompletedByOwnerAt() {
+        return completedByOwnerAt;
+    }
+
+    public void setCompletedByOwnerAt(LocalDateTime completedByOwnerAt) {
+        this.completedByOwnerAt = completedByOwnerAt;
     }
 }

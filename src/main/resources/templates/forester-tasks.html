@@ -8,6 +8,7 @@
 <body>
 <section layout:fragment="content">
   <div class="container mt-5">
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
     <h2>Назначенные задачи</h2>
     <table class="table table-bordered">
       <thead class="table-dark">
@@ -31,9 +32,9 @@
         </td>
         <td th:text="${task.plant.name}"> </td>
         <td>
-          <span th:if="${task.status.name() == 'PENDING'}">Ожидает</span>
-          <span th:if="${task.status.name() == 'IN_PROGRESS'}">В процессе</span>
-          <span th:if="${task.status.name() == 'COMPLETED'}">Выполнена</span>
+          <span th:if="${task.status.name() == 'PENDING'}" class="badge bg-danger text-white">Ожидает</span>
+          <span th:if="${task.status.name() == 'IN_PROGRESS'}" class="badge bg-info text-dark">В процессе</span>
+          <span th:if="${task.status.name() == 'COMPLETED'}" class="badge bg-success text-white">Выполнена</span>
         </td>
         <td th:text="${#temporals.format(task.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
         <td>

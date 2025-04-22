@@ -19,9 +19,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index", "/login", "/register").permitAll()
-                        .requestMatchers("/reports").hasRole("FORESTER")
-                        .requestMatchers("/tasks").hasRole("OWNER")
+                        .requestMatchers("/", "/index", "/login", "/register","/reports").permitAll()
+                        .requestMatchers("/forester-tasks").hasRole("FORESTER")
+                        .requestMatchers("/owner-tasks").hasRole("OWNER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login
