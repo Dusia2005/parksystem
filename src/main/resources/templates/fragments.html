@@ -24,7 +24,11 @@
           <!-- Для владельца -->
           <li class="nav-item" th:if="${#authorization.expression('hasRole(''OWNER'')')}">
             <a class="nav-link" th:href="@{/tasks/owner-tasks}">Задачи</a>
+          </li>
+          <li>
             <a class="nav-link" th:href="@{/reports}">Отчёты</a>
+          </li>
+          <li>
             <a class="nav-link" th:href="@{/tasks/history}">История задач</a>
           </li>
           <!-- Если пользователь не вошёл в систему -->

@@ -44,8 +44,9 @@
                   </span>
                 </td>
                 <td>
-                    <form th:action="@{/tasks/approve/{id}(id=${task.id})}" method="post" style="display:inline-block;">
-                        <button class="btn btn-success btn-sm" type="submit" th:if="${!task.approvedByOwner}">Закрыть задачу</button>
+                    <form th:if="${task.status.name() == 'COMPLETED' and !task.approvedByOwner}"
+                          th:action="@{/tasks/approve/{id}(id=${task.id})}" method="post" style="display:inline-block;">
+                        <button class="btn btn-success btn-sm" type="submit">Закрыть задачу</button>
                     </form>
                     <a th:href="@{/tasks/{id}/map(id=${task.id})}" class="btn btn-info btn-sm">Открыть карту</a>
                 </td>

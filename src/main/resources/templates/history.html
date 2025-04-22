@@ -11,6 +11,7 @@
     <h2>История завершённых задач</h2>
     <table class="table">
       <thead>
+      <thead>
       <tr>
         <th>ID</th>
         <th>Описание</th>
@@ -18,7 +19,7 @@
         <th>Растение</th>
         <th>Статус</th>
         <th>Отчёт</th>
-        <th>Дата завершения</th>
+        <th>Дата начала - окончания</th>
         <th>Действия</th>
       </tr>
       </thead>
@@ -27,32 +28,44 @@
         <td th:text="${task.id}"></td>
         <td th:text="${task.description}"></td>
         <td>
-                  <span th:switch="${task.action.name}">
-                    <span th:case="PLANTING">Посадка</span>
-                    <span th:case="CUTTING">Вырубка</span>
-                    <span th:case="WATERING">Полив</span>
-                    <span th:case="FIRE_EXTINGUISHING">Тушение пожара</span>
-                    <span th:case="PATROLLING">Обход</span>
-                    <span th:case="*">Неизвестно</span>
-                  </span>
+    <span th:switch="${task.action.name}">
+      <span th:case="PLANTING">Посадка</span>
+      <span th:case="CUTTING">Вырубка</span>
+      <span th:case="WATERING">Полив</span>
+      <span th:case="FIRE_EXTINGUISHING">Тушение пожара</span>
+      <span th:case="PATROLLING">Обход</span>
+      <span th:case="*">Неизвестно</span>
+    </span>
         </td>
         <td th:text="${task.plant.name}"> </td>
         <td>
           <span th:if="${task.status.name() == 'COMPLETED'}" class="badge bg-success text-white">Выполнена</span>
         </td>
         <td>
-                    <span th:if="${taskReports.containsKey(task.id)}"
-                          th:text="${taskReports.get(task.id)}"></span>
+    <span th:if="${taskReports.containsKey(task.id)}"
+          th:text="${taskReports.get(task.id)}"></span>
           <span th:if="${!taskReports.containsKey(task.id)}">
-                        <em>Отчёт отсутствует</em>
-                    </span>
+      <em>Отчёт отсутствует</em>
+    </span>
         </td>
-        <td th:text="${#temporals.format(task.completedByOwnerAt, 'dd.MM.yyyy HH:mm')}"></td>
         <td>
-          <form th:action="@{/tasks/delete/{id}(id=${task.id})}" method="post"
-                onsubmit="return confirm('Вы уверены, что хотите удалить задачу?');">
-            <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
-          </form>
+          <span th:text="${#temporals.format(task.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+          &nbsp;-&nbsp;
+          <span th:text="${#temporals.format(task.updatedAt, 'dd.MM.yyyy HH:mm')}"></span>
+        </td>
+        <td>
+          <div class="btn-group" role="group">
+            <!-- Кнопка карта -->
+            <a class="btn btn-primary btn-sm"
+               th:href="@{/tasks/{id}/map(id=${task.id})}">Карта</a>
+
+            <!-- Кнопка удалить -->
+            <form th:action="@{/tasks/delete/{id}(id=${task.id})}" method="post"
+                  onsubmit="return confirm('Вы уверены, что хотите удалить задачу?');"
+                  style="display:inline;">
+              <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+            </form>
+          </div>
         </td>
       </tr>
       </tbody>

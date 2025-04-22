@@ -174,6 +174,7 @@ public class TaskController {
         model.addAttribute("taskReports", taskReports);
         return "history";
     }
+
     @PostMapping("/delete/{id}")
     public String deleteTask(@PathVariable Long id) {
         taskService.deleteById(id);
