@@ -24,9 +24,10 @@
 
       <div class="mb-3">
         <label th:for="*{plantName}" class="form-label">Растение</label>
-        <select class="form-select" th:field="*{plantName}" required>
-          <option th:each="plant : ${allowedPlants}" th:value="${plant}" th:text="${plant}"></option>
-        </select>
+        <input list="plants" name="plantName" class="form-control" required />
+        <datalist id="plants">
+          <option th:each="plant : ${allowedPlants}" th:value="${plant.name}" />
+        </datalist>
       </div>
 
       <div class="mb-3">
@@ -52,6 +53,8 @@
       <input type="hidden" th:field="*{coordY}"/>
 
       <button type="submit" class="btn btn-success">Создать задачу</button>
+
+      <a href="/tasks/owner-tasks" class="btn btn-secondary">Назад к задачам</a>
     </form>
 
     <div th:if="${success}" class="alert alert-success mt-3" th:text="${success}"></div>
@@ -82,9 +85,16 @@
       document.getElementById('coordY').value = Math.round(y);
 
       const marker = document.getElementById('marker');
-      marker.style.left = x + 'px';
-      marker.style.top = y + 'px';
       marker.innerText = currentIcon;
+
+      // Задержка для расчета размеров после вставки иконки
+      setTimeout(() => {
+        const width = marker.offsetWidth;
+        const height = marker.offsetHeight;
+
+        marker.style.left = (x - width / 2) + 'px';
+        marker.style.top = (y - height / 2) + 'px';
+      }, 0);
     });
   </script>
 </section>

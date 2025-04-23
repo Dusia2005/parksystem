@@ -18,18 +18,18 @@
           <li class="nav-item" th:if="${#authorization.expression('hasRole(''FORESTER'')')}">
             <a class="nav-link" th:href="@{/tasks/forester-tasks}">Мои задачи</a>
           </li>
-          <li class="nav-item" th:if="${#authorization.expression('hasRole(''FORESTER'')')}">
-            <a class="nav-link" th:href="@{/reports}">Мои отчёты</a>
-          </li>
           <!-- Для владельца -->
           <li class="nav-item" th:if="${#authorization.expression('hasRole(''OWNER'')')}">
             <a class="nav-link" th:href="@{/tasks/owner-tasks}">Задачи</a>
           </li>
-          <li>
-            <a class="nav-link" th:href="@{/reports}">Отчёты</a>
-          </li>
-          <li>
+          <li class="nav-item" th:if="${#authorization.expression('hasRole(''OWNER'')')}">
             <a class="nav-link" th:href="@{/tasks/history}">История задач</a>
+          </li>
+          <li class="nav-item" th:if="${#authorization.expression('hasRole(''OWNER'')')}">
+            <a class="nav-link" th:href="@{/plants}">Растения леса</a>
+          </li>
+          <li class="nav-item" th:if="${#authorization.expression('hasRole(''OWNER'')')}">
+            <a class="nav-link" th:href="@{/statistics}">Статистика лесников</a>
           </li>
           <!-- Если пользователь не вошёл в систему -->
           <li class="nav-item" th:if="${not #authorization.expression('isAuthenticated()')}">

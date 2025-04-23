@@ -1,11 +1,13 @@
 package com.project.parksystem.controller;
 
+import com.project.parksystem.dto.ForesterStatisticsDto;
 import com.project.parksystem.dto.TaskForm;
-import com.project.parksystem.model.Report;
+import com.project.parksystem.model.Plant;
 import com.project.parksystem.model.Status;
 import com.project.parksystem.model.Task;
 import com.project.parksystem.model.User;
-import com.project.parksystem.service.ReportService;
+import com.project.parksystem.service.PlantService;
+import com.project.parksystem.service.StatisticsService;
 import com.project.parksystem.service.TaskService;
 import com.project.parksystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.security.Principal;
-import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -32,10 +32,17 @@ public class TaskController {
     private TaskService taskService;
 
     @Autowired
-    private ReportService reportService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    private PlantService plantService;
+
+    @Autowired
+    private final StatisticsService statisticsService;
+
+    public TaskController(StatisticsService statisticsService) {
+        this.statisticsService = statisticsService;
+    }
 
     @GetMapping("/owner-tasks")
     public String listTasks(Model model) {
@@ -43,15 +50,7 @@ public class TaskController {
                 .filter(task -> !task.isApprovedByOwner())
                 .collect(Collectors.toList());
 
-        HashMap<Long, String> taskReports = new HashMap<>();
-        for (Task task : tasks) {
-            reportService.getReportByTask(task).ifPresent(report ->
-                    taskReports.put(task.getId(), report.getReportText())
-            );
-        }
-
         model.addAttribute("tasks", tasks);
-        model.addAttribute("taskReports", taskReports);
         return "owner-tasks";
     }
 
@@ -71,14 +70,12 @@ public class TaskController {
         model.addAttribute("task", new TaskForm());
         model.addAttribute("foresters", userService.getAllForesters());
 
-        List<String> allowedPlants = List.of(
-                "ель", "сосна", "береза", "дуб", "липа", "елка",
-                "роза", "тюльпаны", "ландыши", "лилия"
-        );
+        List<Plant> allowedPlants = plantService.getAllPlants();
         model.addAttribute("allowedPlants", allowedPlants);
 
         return "create-task";
     }
+
 
     @PostMapping("/new")
     public String createTask(TaskForm form, Model model) {
@@ -135,12 +132,7 @@ public class TaskController {
         User forester = userService.findByUsername(principal.getName())
                 .orElseThrow(() -> new RuntimeException("Лесник не найден"));
 
-        Report report = new Report();
-        report.setTask(task);
-        report.setForester(forester);
-        report.setReportText(reportText);
-        report.setCreatedAt(LocalDateTime.now());
-        reportService.save(report);
+        taskService.save(task);
 
         return "redirect:/tasks/forester-tasks";
     }
@@ -163,15 +155,8 @@ public class TaskController {
                 .filter(Task::isApprovedByOwner)
                 .collect(Collectors.toList());
 
-        HashMap<Long, String> taskReports = new HashMap<>();
-        for (Task task : historyTasks) {
-            reportService.getReportByTask(task).ifPresent(report ->
-                    taskReports.put(task.getId(), report.getReportText())
-            );
-        }
 
         model.addAttribute("tasks", historyTasks);
-        model.addAttribute("taskReports", taskReports);
         return "history";
     }
 
@@ -180,5 +165,4 @@ public class TaskController {
         taskService.deleteById(id);
         return "redirect:/tasks/history";
     }
-
 }

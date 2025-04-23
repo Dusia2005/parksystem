@@ -21,7 +21,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index", "/login", "/register","/reports").permitAll()
                         .requestMatchers("/forester-tasks").hasRole("FORESTER")
-                        .requestMatchers("/owner-tasks").hasRole("OWNER")
+                        .requestMatchers("/owner-tasks","/plants").hasRole("OWNER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Статистика лесников</title>
+  <style>
+    th a {
+      color: black;
+      text-decoration: none;
+    }
+    th a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+<section layout:fragment="content">
+  <div class="container mt-5">
+    <h2>📊 Статистика лесников</h2>
+    <table class="table table-bordered">
+      <thead>
+      <tr>
+        <th><a th:href="@{/statistics(sort='id')}">ID</a></th>
+        <th><a th:href="@{/statistics(sort='username')}">Имя</a></th>
+        <th><a th:href="@{/statistics(sort='kilometers')}">Километры</a></th>
+        <th><a th:href="@{/statistics(sort='completed')}">Выполнено</a></th>
+        <th><a th:href="@{/statistics(sort='inProgress')}">В процессе</a></th>
+        <th><a th:href="@{/statistics(sort='pending')}">В ожидании</a></th>
+        <th><a th:href="@{/statistics(sort='workTime')}">Время работы</a></th>
+        <th><a th:href="@{/statistics(sort='level')}">Стаж</a></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="s : ${stats}">
+        <td th:text="${s.id}"></td>
+        <td th:text="${s.username}"></td>
+        <td th:text="${#numbers.formatDecimal(s.kilometers, 1, 2)} + ' км'"></td>
+        <td th:text="${s.completedTasks}"></td>
+        <td th:text="${s.inProgressTasks}"></td>
+        <td th:text="${s.pendingTasks}"></td>
+        <td th:text="${s.formattedWorkTime}"></td>
+        <td th:text="${s.level}"></td>
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+</section>
+</body>
+</html>

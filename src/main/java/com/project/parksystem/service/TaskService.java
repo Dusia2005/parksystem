@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -23,7 +22,7 @@ public class TaskService {
     private UserService userService;
 
     @Autowired
-    private ReportService reportService;
+    private PlantService plantService;
 
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
@@ -44,11 +43,7 @@ public class TaskService {
         taskRepository.save(task);
     }
     public boolean isValidPlant(String plantName) {
-        List<String> allowedPlants = List.of(
-                "ель", "сосна", "береза", "дуб", "липа", "елка",
-                "роза", "тюльпаны", "ландыши", "лилия"
-        );
-        return allowedPlants.contains(plantName.toLowerCase());
+        return plantService.findByNameIgnoreCase(plantName).isPresent();
     }
 
     public void createTaskFromForm(TaskForm form) {
@@ -59,15 +54,19 @@ public class TaskService {
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         task.setAction(form.getAction());
-
-        Plant plant = new Plant();
-        plant.setName(form.getPlantName());
-        task.setPlant(plant);
-
         task.setCoordX(form.getCoordX());
         task.setCoordY(form.getCoordY());
-
         task.setApprovedByOwner(false);
+
+        // 🌱 Найти растение по имени (игнорируя регистр), или создать новое
+        Plant plant = plantService.findByNameIgnoreCase(form.getPlantName())
+                .orElseGet(() -> {
+                    Plant newPlant = new Plant();
+                    newPlant.setName(form.getPlantName());
+                    return plantService.savePlant(newPlant); // сохраняем и возвращаем
+                });
+
+        task.setPlant(plant);
 
         taskRepository.save(task);
     }
@@ -85,7 +84,6 @@ public class TaskService {
     }
     public void deleteById(Long id) {
         Task task = taskRepository.findById(id).orElseThrow();
-        reportService.deleteByTask(task); // сначала удалить отчёт, если есть
         taskRepository.delete(task);
     }
 }

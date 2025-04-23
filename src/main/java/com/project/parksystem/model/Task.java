@@ -38,6 +38,8 @@ public class Task {
     @Column(name = "completed_by_owner_at")
     private LocalDateTime completedByOwnerAt;
 
+    private String reportText;
+
     // Добавь, если используешь: координаты
     private Integer coordX;
     private Integer coordY;
@@ -83,11 +85,7 @@ public class Task {
         this.approvedByOwner = approvedByOwner;
     }
 
-    public LocalDateTime getCompletedByOwnerAt() {
-        return completedByOwnerAt;
-    }
+    public LocalDateTime getCompletedByOwnerAt() { return completedByOwnerAt; }
 
-    public void setCompletedByOwnerAt(LocalDateTime completedByOwnerAt) {
-        this.completedByOwnerAt = completedByOwnerAt;
-    }
+    public void setCompletedByOwnerAt(LocalDateTime completedByOwnerAt) { this.completedByOwnerAt = completedByOwnerAt;}
 }

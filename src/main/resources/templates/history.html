@@ -42,11 +42,11 @@
           <span th:if="${task.status.name() == 'COMPLETED'}" class="badge bg-success text-white">Выполнена</span>
         </td>
         <td>
-    <span th:if="${taskReports.containsKey(task.id)}"
-          th:text="${taskReports.get(task.id)}"></span>
-          <span th:if="${!taskReports.containsKey(task.id)}">
-      <em>Отчёт отсутствует</em>
-    </span>
+          <span th:if="${task.reportText != null and !task.reportText.isEmpty()}"
+                th:text="${task.reportText}"></span>
+                    <span th:if="${task.reportText == null or task.reportText.isEmpty()}">
+            <em>Отчёт отсутствует</em>
+          </span>
         </td>
         <td>
           <span th:text="${#temporals.format(task.createdAt, 'dd.MM.yyyy HH:mm')}"></span>

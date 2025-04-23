@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Добавить растение</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="container mt-5" style="max-width: 600px;">
+        <h2>Добавить новое растение</h2>
+        <form th:action="@{/plants/new}" method="post" th:object="${plant}">
+            <div class="mb-3">
+                <label th:for="*{name}" class="form-label">Название</label>
+                <input type="text" class="form-control" th:field="*{name}" required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Добавить</button>
+            <a href="/tasks/new" class="btn btn-secondary">Назад к задаче</a>
+        </form>
+    </div>
+</section>
+</body>
+</html>
