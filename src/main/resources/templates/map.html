@@ -15,30 +15,40 @@
       <img src="/assets/les.jpg" id="map" style="width: 100%; max-width: 600px;" />
       <div id="marker" style="position: absolute; font-size: 32px;"></div>
     </div>
+    <!-- Для владельца -->
+    <a th:if="${userRole == 'OWNER' and from == 'owner'}" th:href="@{/tasks/owner-tasks}" class="btn btn-secondary mt-3">Назад</a>
+    <a th:if="${userRole == 'OWNER' and from == 'history'}" th:href="@{/tasks/history}" class="btn btn-secondary mt-3">Назад</a>
 
-    <a th:if="${userRole == 'OWNER'}" th:href="@{/tasks/owner-tasks}" class="btn btn-secondary mt-3">Назад</a>
-    <a th:if="${userRole == 'FORESTER'}" th:href="@{/tasks/forester-tasks}" class="btn btn-secondary mt-3">Назад</a>
+    <!-- Для лесника -->
+    <a th:if="${userRole == 'FORESTER'}"
+       th:href="@{/tasks/forester-tasks}" class="btn btn-secondary mt-3">Назад</a>
 
   </div>
 
   <script th:inline="javascript">
     const x = [[${task.coordX}]];
     const y = [[${task.coordY}]];
-    const action = [[${task.action.name}]];
+    const action = /*[[${task.action.name}]]*/ "UNKNOWN"; // fallback, если task.action.name не определён
 
     let icon = '📍';
     switch (action) {
-      case 'PLANTING': icon = '🌱'; break;
-      case 'CUTTING': icon = '❌'; break;
-      case 'WATERING': icon = '💧'; break;
-      case 'FIRE_EXTINGUISHING': icon = '🔥'; break;
-      case 'PATROLLING': icon = '🚶'; break;
+        case 'PLANTING': icon = '🌱'; break;
+        case 'CUTTING': icon = '❌'; break;
+        case 'WATERING': icon = '💧'; break;
+        case 'FIRE_EXTINGUISHING': icon = '🔥'; break;
+        case 'PATROLLING': icon = '🚶'; break;
     }
 
     const marker = document.getElementById('marker');
-    marker.style.left = x + 'px';
-    marker.style.top = y + 'px';
     marker.innerText = icon;
+
+    // Подождать, пока иконка отрендерится, чтобы узнать размеры
+    setTimeout(() => {
+        const width = marker.offsetWidth;
+        const height = marker.offsetHeight;
+        marker.style.left = (x - width / 2) + 'px';
+        marker.style.top = (y - height / 2) + 'px';
+    }, 0);
   </script>
 </section>
 </body>

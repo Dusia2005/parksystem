@@ -111,9 +111,11 @@ public class TaskController {
 
 
     @PostMapping("/complete/{id}")
-    public String completeTask(@PathVariable Long id, @RequestParam String reportText, Principal principal, Model model) {
+    public String completeTask(@PathVariable Long id,
+                               @RequestParam String reportText,
+                               Principal principal,
+                               Model model) {
         if (reportText == null || reportText.trim().isEmpty()) {
-            // Получаем задачу и список задач снова, чтобы вернуть всё на страницу
             Task task = taskService.getById(id);
             User forester = userService.findByUsername(principal.getName())
                     .orElseThrow(() -> new RuntimeException("Лесник не найден"));
@@ -125,12 +127,9 @@ public class TaskController {
         }
 
         Task task = taskService.getById(id);
+        task.setReportText(reportText); // 💥 добавлено!
         task.setStatus(Status.COMPLETED);
         task.setUpdatedAt(LocalDateTime.now());
-        taskService.save(task);
-
-        User forester = userService.findByUsername(principal.getName())
-                .orElseThrow(() -> new RuntimeException("Лесник не найден"));
 
         taskService.save(task);
 
@@ -138,16 +137,21 @@ public class TaskController {
     }
 
     @GetMapping("/{id}/map")
-    public String showTaskMap(@PathVariable Long id, Model model, Principal principal) {
-        Task task = taskService.findById(id); // Убедись, что у тебя есть такой метод
+    public String showTaskMap(@PathVariable Long id,
+                              @RequestParam(required = false) String from,
+                              Model model,
+                              Principal principal) {
+        Task task = taskService.findById(id);
         User currentUser = userService.findByUsername(principal.getName())
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
         model.addAttribute("task", task);
-        model.addAttribute("userRole", currentUser.getRole().name()); // например: "FORESTER" или "OWNER"
+        model.addAttribute("userRole", currentUser.getRole().name());
+        model.addAttribute("from", from); // 👈 теперь param.from будет работать
 
-        return "map";
+        return "map"; // убедись, что шаблон называется map.html
     }
+
 
     @GetMapping("/history")
     public String showTaskHistory(Model model) {

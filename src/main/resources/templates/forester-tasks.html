@@ -13,12 +13,18 @@
     <table class="table table-bordered">
       <thead class="table-dark">
       <tr>
-        <th>ID</th><th>Описание</th><th>Действие</th><th>Растение</th><th>Статус</th><th>Дата выдачи задачи</th><th>Действия</th>
+        <th>ID</th>
+        <th>Описание</th>
+        <th>Действие</th>
+        <th>Растение</th>
+        <th>Статус</th>
+        <th>Дата выдачи задачи</th>
+        <th>Действия</th>
       </tr>
       </thead>
       <tbody>
-      <tr th:each="task : ${tasks}">
-        <td th:text="${task.id}"></td>
+      <tr th:each="task : ${tasks}" th:if="${!task.approvedByOwner}">
+      <td th:text="${task.id}"></td>
         <td th:text="${task.description}"></td>
         <td>
                   <span th:switch="${task.action.name}">

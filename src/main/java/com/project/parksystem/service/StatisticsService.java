@@ -26,7 +26,7 @@ public class StatisticsService {
     public double getRoundTripDistanceInKm(int x, int y) {
         final int baseX = 320;
         final int baseY = 122;
-        final double metersPerPixel = 100.0 / 92.0;
+        final double metersPerPixel = 100.0 / 5;
 
         double dx = x - baseX;
         double dy = y - baseY;
@@ -86,8 +86,17 @@ public class StatisticsService {
     }
 
     private String calculateLevel(long completed, double km, Duration time) {
-        if (completed >= 20 && km >= 50 && time.toHours() >= 40) return "Знаток леса";
-        if (completed >= 10 && km >= 20 && time.toHours() >= 10) return "Опытный";
+        long hours = time.toHours();
+
+        if (completed >= 100 && km >= 50 && hours >= 400) return "Легенда леса";
+        if (completed >= 80 && km >= 40 && hours >= 300) return "Мастер троп";
+        if (completed >= 60 && km >= 30 && hours >= 200) return "Хранитель чащи";
+        if (completed >= 50 && km >= 25 && hours >= 150) return "Старший лесник";
+        if (completed >= 40 && km >= 20 && hours >= 120) return "Проводник";
+        if (completed >= 30 && km >= 15 && hours >= 80) return "Смотритель леса";
+        if (completed >= 20 && km >= 10 && hours >= 60) return "Знаток леса";
+        if (completed >= 15 && km >= 8 && hours >= 40) return "Опытный";
+        if (completed >= 10 && km >= 5 && hours >= 20) return "Помощник лесника";
         return "Новичок";
     }
 }

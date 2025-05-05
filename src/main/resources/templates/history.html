@@ -14,6 +14,7 @@
       <thead>
       <tr>
         <th>ID</th>
+        <th>Лесник</th>
         <th>Описание</th>
         <th>Действие</th>
         <th>Растение</th>
@@ -26,6 +27,7 @@
       <tbody>
       <tr th:each="task : ${tasks}">
         <td th:text="${task.id}"></td>
+        <td th:text="${task.forester != null ? task.forester.username : '—'}"></td>
         <td th:text="${task.description}"></td>
         <td>
     <span th:switch="${task.action.name}">
@@ -56,14 +58,7 @@
         <td>
           <div class="btn-group" role="group">
             <!-- Кнопка карта -->
-            <a class="btn btn-primary btn-sm"
-               th:href="@{/tasks/{id}/map(id=${task.id})}">Карта</a>
-
-            <!-- Кнопка удалить -->
-            <form th:action="@{/tasks/delete/{id}(id=${task.id})}" method="post"
-                  onsubmit="return confirm('Вы уверены, что хотите удалить задачу?');"
-                  style="display:inline;">
-              <button class="btn btn-danger btn-sm" type="submit">Удалить</button>
+            <a th:href="@{/tasks/{id}/map(id=${task.id}, from='history')}" class="btn btn-primary btn-sm">Карта</a>
             </form>
           </div>
         </td>

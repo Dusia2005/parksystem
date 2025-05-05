@@ -14,11 +14,21 @@
         </div>
         <table class="table">
             <thead>
-            <tr><th>ID</th><th>Описание</th><th>Что сделать</th><th>Растение</th><th>Статус</th><th>Отчёт</th><th>Действия</th></tr>
+            <tr>
+                <th>ID</th>
+                <th>Лесник</th>
+                <th>Описание</th>
+                <th>Что сделать</th>
+                <th>Растение</th>
+                <th>Статус</th>
+                <th>Отчёт</th>
+                <th>Действия</th>
+            </tr>
             </thead>
             <tbody>
             <tr th:each="task : ${tasks}">
                 <td th:text="${task.id}"></td>
+                <td th:text="${task.forester != null ? task.forester.username : '—'}"></td>
                 <td th:text="${task.description}"></td>
                 <td>
                   <span th:switch="${task.action.name}">
@@ -48,9 +58,8 @@
                           th:action="@{/tasks/approve/{id}(id=${task.id})}" method="post" style="display:inline-block;">
                         <button class="btn btn-success btn-sm" type="submit">Закрыть задачу</button>
                     </form>
-                    <a th:href="@{/tasks/{id}/map(id=${task.id})}" class="btn btn-info btn-sm">Открыть карту</a>
+                    <a th:href="@{/tasks/{id}/map(id=${task.id}, from='owner')}" class="btn btn-info btn-sm">Открыть карту</a>
                 </td>
-
             </tr>
             </tbody>
         </table>

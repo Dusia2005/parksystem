@@ -44,7 +44,8 @@ public class AuthController {
         } else {
             model.addAttribute("role", "GUEST");
         }
-        return "index";
+        return "" +
+                "";
     }
 
 
