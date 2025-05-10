@@ -23,10 +23,13 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping("/tasks")
 public class TaskController {
+    private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
     @Autowired
     private TaskService taskService;
@@ -46,6 +49,7 @@ public class TaskController {
 
     @GetMapping("/owner-tasks")
     public String listTasks(Model model) {
+        logger.info("Загрузка задач для владельца");
         List<Task> tasks = taskService.getAllTasks().stream()
                 .filter(task -> !task.isApprovedByOwner())
                 .collect(Collectors.toList());
@@ -56,6 +60,7 @@ public class TaskController {
 
     @PostMapping("/approve/{taskId}")
     public String approveTask(@PathVariable Long taskId) {
+        logger.info("Одобрение задачи ID {}", taskId);
         Task task = taskService.getById(taskId); // сначала получаем задачу
         task.setApprovedByOwner(true); // ставим флажок
         task.setCompletedByOwnerAt(LocalDateTime.now()); // ставим дату завершения
@@ -67,6 +72,7 @@ public class TaskController {
 
     @GetMapping("/new")
     public String showCreateTaskForm(Model model) {
+        logger.info("Открытие формы создания задачи");
         model.addAttribute("task", new TaskForm());
         model.addAttribute("foresters", userService.getAllForesters());
 
@@ -79,6 +85,8 @@ public class TaskController {
 
     @PostMapping("/new")
     public String createTask(TaskForm form, Model model) {
+        User forester = userService.getUserById(form.getForesterId());
+        logger.info("Создание задачи для лесника {} и растения {}", forester.getUsername(), form.getPlantName());
         if (!taskService.isValidPlant(form.getPlantName())) {
             model.addAttribute("error", "Неверное растение");
             model.addAttribute("task", form);
@@ -93,6 +101,7 @@ public class TaskController {
 
     @GetMapping("/forester-tasks")
     public String showTasksForForester(Model model, Principal principal) {
+        logger.info("Показ задач для лесника {}", principal.getName());
         User forester = userService.findByUsername(principal.getName())
                 .orElseThrow(() -> new RuntimeException("Лесник не найден"));
         List<Task> tasks = taskService.getTasksForForester(forester);
@@ -102,6 +111,7 @@ public class TaskController {
 
     @PostMapping("/start/{id}")
     public String startTask(@PathVariable Long id) {
+        logger.info("Лесник начал задачу ID {}", id);
         Task task = taskService.getById(id);
         task.setStatus(Status.IN_PROGRESS);
         task.setUpdatedAt(LocalDateTime.now());
@@ -115,6 +125,7 @@ public class TaskController {
                                @RequestParam String reportText,
                                Principal principal,
                                Model model) {
+        logger.info("Завершение задачи ID {} лесником {}", id, principal.getName());
         if (reportText == null || reportText.trim().isEmpty()) {
             Task task = taskService.getById(id);
             User forester = userService.findByUsername(principal.getName())
@@ -141,6 +152,7 @@ public class TaskController {
                               @RequestParam(required = false) String from,
                               Model model,
                               Principal principal) {
+        logger.info("Показ карты для задачи ID {} пользователем {}", id, principal.getName());
         Task task = taskService.findById(id);
         User currentUser = userService.findByUsername(principal.getName())
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
@@ -155,6 +167,7 @@ public class TaskController {
 
     @GetMapping("/history")
     public String showTaskHistory(Model model) {
+        logger.info("Просмотр истории задач");
         List<Task> historyTasks = taskService.getAllTasks().stream()
                 .filter(Task::isApprovedByOwner)
                 .collect(Collectors.toList());
@@ -166,6 +179,7 @@ public class TaskController {
 
     @PostMapping("/delete/{id}")
     public String deleteTask(@PathVariable Long id) {
+        logger.info("Удаление задачи ID {}", id);
         taskService.deleteById(id);
         return "redirect:/tasks/history";
     }

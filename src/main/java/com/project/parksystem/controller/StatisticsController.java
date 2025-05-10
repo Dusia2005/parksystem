@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/statistics")
 public class StatisticsController {
+    private static final Logger logger = LoggerFactory.getLogger(StatisticsController.class);
 
     @Autowired
     private StatisticsService statisticsService;
@@ -23,7 +26,7 @@ public class StatisticsController {
     public String getStatistics(
             @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
             Model model) {
-
+        logger.info("Получение статистики, сортировка по {}", sort);
         List<ForesterStatisticsDto> stats = statisticsService.getForestersStatistics();
 
         switch (sort) {
