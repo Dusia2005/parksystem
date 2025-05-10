@@ -10,6 +10,8 @@ import com.project.parksystem.service.PlantService;
 import com.project.parksystem.service.StatisticsService;
 import com.project.parksystem.service.TaskService;
 import com.project.parksystem.service.UserService;
+import com.project.parksystem.strategy.TaskStrategy;
+import com.project.parksystem.strategy.TaskStrategyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +41,9 @@ public class TaskController {
 
     @Autowired
     private PlantService plantService;
+
+    @Autowired
+    private TaskStrategyFactory strategyFactory;
 
     @Autowired
     private final StatisticsService statisticsService;
@@ -126,26 +131,24 @@ public class TaskController {
                                Principal principal,
                                Model model) {
         logger.info("Завершение задачи ID {} лесником {}", id, principal.getName());
+
         if (reportText == null || reportText.trim().isEmpty()) {
-            Task task = taskService.getById(id);
             User forester = userService.findByUsername(principal.getName())
                     .orElseThrow(() -> new RuntimeException("Лесник не найден"));
             List<Task> tasks = taskService.getTasksForForester(forester);
 
             model.addAttribute("tasks", tasks);
             model.addAttribute("error", "Пожалуйста, заполните отчёт перед завершением задачи.");
+
             return "forester-tasks";
         }
 
-        Task task = taskService.getById(id);
-        task.setReportText(reportText); // 💥 добавлено!
-        task.setStatus(Status.COMPLETED);
-        task.setUpdatedAt(LocalDateTime.now());
-
-        taskService.save(task);
+        // ✅ Теперь вызываем "умный" метод
+        taskService.completeTaskWithStrategyAndNotification(id, reportText);
 
         return "redirect:/tasks/forester-tasks";
     }
+
 
     @GetMapping("/{id}/map")
     public String showTaskMap(@PathVariable Long id,

@@ -32,6 +32,7 @@ public class AuthController {
     @GetMapping("/register")
     public String registerPage() {
         logger.info("Открыта страница регистрации");
+
         return "register"; // templates/register.html
     }
 

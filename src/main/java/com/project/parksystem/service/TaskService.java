@@ -5,7 +5,12 @@ import com.project.parksystem.model.Plant;
 import com.project.parksystem.model.Task;
 import com.project.parksystem.model.Status;
 import com.project.parksystem.model.User;
+import com.project.parksystem.observer.OwnerNotifier;
+import com.project.parksystem.observer.TaskEventManager;
 import com.project.parksystem.repository.TaskRepository;
+import com.project.parksystem.strategy.TaskStrategy;
+import com.project.parksystem.strategy.TaskStrategyFactory;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,15 +19,30 @@ import java.util.List;
 
 @Service
 public class TaskService {
+    private final TaskRepository taskRepository;
+    private final TaskStrategyFactory strategyFactory;
+    private final TaskEventManager taskEventManager;
+    private final UserService userService;
+    private final PlantService plantService;
 
     @Autowired
-    private TaskRepository taskRepository;
+    public TaskService(TaskRepository taskRepository,
+                       TaskStrategyFactory strategyFactory,
+                       TaskEventManager taskEventManager,
+                       UserService userService,
+                       PlantService plantService) {
+        this.taskRepository = taskRepository;
+        this.strategyFactory = strategyFactory;
+        this.taskEventManager = taskEventManager;
+        this.userService = userService;
+        this.plantService = plantService;
+    }
 
-    @Autowired
-    private UserService userService;
 
-    @Autowired
-    private PlantService plantService;
+    @PostConstruct
+    public void init() {
+        taskEventManager.subscribe(new OwnerNotifier()); // или инжекти его, если он @Component
+    }
 
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
@@ -41,6 +61,7 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("Task not found"));
         task.setStatus(Status.COMPLETED); // Или другой статус, если есть статус "APPROVED"
         taskRepository.save(task);
+
     }
     public boolean isValidPlant(String plantName) {
         return plantService.findByNameIgnoreCase(plantName).isPresent();
@@ -85,5 +106,20 @@ public class TaskService {
     public void deleteById(Long id) {
         Task task = taskRepository.findById(id).orElseThrow();
         taskRepository.delete(task);
+    }
+
+    public void completeTaskWithStrategyAndNotification(Long taskId, String reportText) {
+        Task task = getById(taskId);
+
+        task.setReportText(reportText);
+        task.setStatus(Status.COMPLETED);
+        task.setUpdatedAt(LocalDateTime.now());
+
+        TaskStrategy strategy = strategyFactory.getStrategy(String.valueOf(task.getAction()));
+        strategy.process(task);
+
+        taskRepository.save(task);
+
+        taskEventManager.notify(task);
     }
 }
