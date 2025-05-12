@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import jakarta.servlet.http.HttpSession; // Импорт
 
 @Controller
 public class AuthController {
@@ -37,20 +38,27 @@ public class AuthController {
     }
 
     @GetMapping("/")
-    public String index(Model model, Authentication authentication) {
+    public String index(Model model, Authentication authentication, HttpSession session) {
         if (authentication != null) {
             logger.info("Пользователь {} вошёл с ролью: {}", authentication.getName(), authentication.getAuthorities());
+
+            session.setAttribute("username", authentication.getName()); // Сохраняем имя в сессию
+
             if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"))) {
+                session.setAttribute("role", "OWNER");
                 model.addAttribute("role", "OWNER");
-                model.addAttribute("username", authentication.getName());
             } else if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_FORESTER"))) {
+                session.setAttribute("role", "FORESTER");
                 model.addAttribute("role", "FORESTER");
-                model.addAttribute("username", authentication.getName());
             } else {
-                model.addAttribute("role", "USER"); // вдруг какая-то другая роль
+                session.setAttribute("role", "USER");
+                model.addAttribute("role", "USER");
             }
+
+            model.addAttribute("username", authentication.getName());
         } else {
             logger.info("Гость посетил главную страницу");
+            session.setAttribute("role", "GUEST");
             model.addAttribute("role", "GUEST");
         }
         return "index";
