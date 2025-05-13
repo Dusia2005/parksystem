@@ -2,8 +2,8 @@ package com.project.parksystem.factory;
 
 import com.project.parksystem.dto.TaskForm;
 import com.project.parksystem.model.Task;
-import com.project.parksystem.repository.PlantRepository;
-import com.project.parksystem.repository.UserRepository;
+import com.project.parksystem.repository.PlantJdbcRepository;
+import com.project.parksystem.repository.UserJdbcRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DefaultTaskCreator implements TaskCreator {
 
-    private final UserRepository userRepository;
-    private final PlantRepository plantRepository;
+    private final UserJdbcRepository userRepository;
+    private final PlantJdbcRepository plantRepository;
 
     @Override
     public Task createTask(TaskForm form) {

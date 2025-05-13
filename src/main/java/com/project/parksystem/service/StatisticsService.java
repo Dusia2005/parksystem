@@ -4,8 +4,8 @@ import com.project.parksystem.dto.ForesterStatisticsDto;
 import com.project.parksystem.model.Role;
 import com.project.parksystem.model.Task;
 import com.project.parksystem.model.User;
-import com.project.parksystem.repository.TaskRepository;
-import com.project.parksystem.repository.UserRepository;
+import com.project.parksystem.repository.TaskJdbcRepository;
+import com.project.parksystem.repository.UserJdbcRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -15,10 +15,10 @@ import java.util.List;
 @Service
 public class StatisticsService {
 
-    private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
+    private final TaskJdbcRepository taskRepository;
+    private final UserJdbcRepository userRepository;
 
-    public StatisticsService(TaskRepository taskRepository, UserRepository userRepository) {
+    public StatisticsService(TaskJdbcRepository taskRepository, UserJdbcRepository userRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
     }
@@ -40,7 +40,7 @@ public class StatisticsService {
         List<ForesterStatisticsDto> stats = new ArrayList<>();
 
         for (User forester : foresters) {
-            List<Task> tasks = taskRepository.findByForester(forester);
+            List<Task> tasks = taskRepository.findByForester(forester.getId());
 
             double totalKm = 0;
             long completed = 0;

@@ -81,7 +81,7 @@ public class TaskController {
         model.addAttribute("task", new TaskForm());
         model.addAttribute("foresters", userService.getAllForesters());
 
-        List<Plant> allowedPlants = plantService.getAllPlants();
+        List<Plant> allowedPlants = plantService.findAll();
         model.addAttribute("allowedPlants", allowedPlants);
 
         return "create-task";
@@ -107,8 +107,11 @@ public class TaskController {
     @GetMapping("/forester-tasks")
     public String showTasksForForester(Model model, Principal principal) {
         logger.info("Показ задач для лесника {}", principal.getName());
-        User forester = userService.findByUsername(principal.getName())
-                .orElseThrow(() -> new RuntimeException("Лесник не найден"));
+        User forester = userService.findByUsername(principal.getName());
+        if (forester == null) {
+            throw new RuntimeException("Лесник не найден");
+        }
+
         List<Task> tasks = taskService.getTasksForForester(forester);
         model.addAttribute("tasks", tasks);
         return "forester-tasks";
@@ -133,8 +136,11 @@ public class TaskController {
         logger.info("Завершение задачи ID {} лесником {}", id, principal.getName());
 
         if (reportText == null || reportText.trim().isEmpty()) {
-            User forester = userService.findByUsername(principal.getName())
-                    .orElseThrow(() -> new RuntimeException("Лесник не найден"));
+            User forester = userService.findByUsername(principal.getName());
+            if (forester == null) {
+                throw new RuntimeException("Лесник не найден");
+            }
+
             List<Task> tasks = taskService.getTasksForForester(forester);
 
             model.addAttribute("tasks", tasks);
@@ -156,9 +162,11 @@ public class TaskController {
                               Model model,
                               Principal principal) {
         logger.info("Показ карты для задачи ID {} пользователем {}", id, principal.getName());
-        Task task = taskService.findById(id);
-        User currentUser = userService.findByUsername(principal.getName())
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        Task task = taskService.getById(id);
+        User currentUser = userService.findByUsername(principal.getName());
+        if (currentUser == null) {
+            throw new RuntimeException("Пользователь не найден");
+        }
 
         model.addAttribute("task", task);
         model.addAttribute("userRole", currentUser.getRole().name());

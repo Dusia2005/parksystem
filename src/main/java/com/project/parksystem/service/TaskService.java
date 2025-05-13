@@ -7,7 +7,7 @@ import com.project.parksystem.model.Status;
 import com.project.parksystem.model.User;
 import com.project.parksystem.observer.OwnerNotifier;
 import com.project.parksystem.observer.TaskEventManager;
-import com.project.parksystem.repository.TaskRepository;
+import com.project.parksystem.repository.TaskJdbcRepository;
 import com.project.parksystem.strategy.TaskStrategy;
 import com.project.parksystem.strategy.TaskStrategyFactory;
 import jakarta.annotation.PostConstruct;
@@ -19,52 +19,49 @@ import java.util.List;
 
 @Service
 public class TaskService {
-    private final TaskRepository taskRepository;
+    private final TaskJdbcRepository taskJdbcRepository;
     private final TaskStrategyFactory strategyFactory;
     private final TaskEventManager taskEventManager;
     private final UserService userService;
     private final PlantService plantService;
 
     @Autowired
-    public TaskService(TaskRepository taskRepository,
+    public TaskService(TaskJdbcRepository taskJdbcRepository,
                        TaskStrategyFactory strategyFactory,
                        TaskEventManager taskEventManager,
                        UserService userService,
                        PlantService plantService) {
-        this.taskRepository = taskRepository;
+        this.taskJdbcRepository = taskJdbcRepository;
         this.strategyFactory = strategyFactory;
         this.taskEventManager = taskEventManager;
         this.userService = userService;
         this.plantService = plantService;
     }
 
-
     @PostConstruct
     public void init() {
-        taskEventManager.subscribe(new OwnerNotifier()); // или инжекти его, если он @Component
+        taskEventManager.subscribe(new OwnerNotifier());
     }
 
     public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+        return taskJdbcRepository.findAll();
     }
 
     public List<Task> getTasksForForester(User forester) {
-        return taskRepository.findByForester(forester);
+        return taskJdbcRepository.findByForester(forester.getId());
     }
 
-    public void createTask(Task task) {
-        taskRepository.save(task);
+    public Task getById(Long id) {
+        return taskJdbcRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Задача не найдена"));
     }
 
-    public void approveTask(Long taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-        task.setStatus(Status.COMPLETED); // Или другой статус, если есть статус "APPROVED"
-        taskRepository.save(task);
-
+    public void save(Task task) {
+        taskJdbcRepository.save(task);
     }
-    public boolean isValidPlant(String plantName) {
-        return plantService.findByNameIgnoreCase(plantName).isPresent();
+
+    public void deleteById(Long id) {
+        taskJdbcRepository.delete(id);
     }
 
     public void createTaskFromForm(TaskForm form) {
@@ -79,33 +76,16 @@ public class TaskService {
         task.setCoordY(form.getCoordY());
         task.setApprovedByOwner(false);
 
-        // 🌱 Найти растение по имени (игнорируя регистр), или создать новое
         Plant plant = plantService.findByNameIgnoreCase(form.getPlantName())
                 .orElseGet(() -> {
                     Plant newPlant = new Plant();
                     newPlant.setName(form.getPlantName());
-                    return plantService.savePlant(newPlant); // сохраняем и возвращаем
+                    return plantService.savePlant(newPlant);
                 });
 
         task.setPlant(plant);
 
-        taskRepository.save(task);
-    }
-
-    public Task getById(Long id) {
-        return taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Задача не найдена"));
-    }
-
-    public void save(Task task) {
-        taskRepository.save(task);
-    }
-    public Task findById(Long id) {
-        return taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Задача не найдена с id: " + id));
-    }
-    public void deleteById(Long id) {
-        Task task = taskRepository.findById(id).orElseThrow();
-        taskRepository.delete(task);
+        taskJdbcRepository.save(task);
     }
 
     public void completeTaskWithStrategyAndNotification(Long taskId, String reportText) {
@@ -118,8 +98,12 @@ public class TaskService {
         TaskStrategy strategy = strategyFactory.getStrategy(String.valueOf(task.getAction()));
         strategy.process(task);
 
-        taskRepository.save(task);
+        taskJdbcRepository.save(task);
 
         taskEventManager.notify(task);
     }
+    public boolean isValidPlant(String plantName) {
+        return plantService.findByNameIgnoreCase(plantName).isPresent();
+    }
+
 }
