@@ -3,6 +3,9 @@ package com.project.parksystem.dto;
 import com.project.parksystem.model.Action;
 import lombok.Data;
 
+/**
+ * DTO-форма для создания задачи.
+ */
 @Data
 public class TaskForm {
     private String description;

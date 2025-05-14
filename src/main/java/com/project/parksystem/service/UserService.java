@@ -1,4 +1,5 @@
 package com.project.parksystem.service;
+
 import com.project.parksystem.model.Role;
 import com.project.parksystem.model.User;
 import com.project.parksystem.repository.UserJdbcRepository;
@@ -10,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Сервис для управления пользователями и интеграции с Spring Security.
+ */
 @Service
 public class UserService implements UserDetailsService {
 
@@ -34,6 +38,9 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
     }
 
+    /**
+     * Регистрирует нового пользователя.
+     */
     public void registerUser(User user) {
         try {
             if (userJdbcRepository.findByUsername(user.getUsername()).isPresent()) {
@@ -47,12 +54,14 @@ public class UserService implements UserDetailsService {
         }
     }
 
-
     public User findByUsername(String username) {
         return userJdbcRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
     }
 
+    /**
+     * Загрузка пользователя по имени для Spring Security.
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userJdbcRepository.findByUsername(username)
@@ -64,5 +73,4 @@ public class UserService implements UserDetailsService {
                 .roles(user.getRole().name())
                 .build();
     }
-
 }

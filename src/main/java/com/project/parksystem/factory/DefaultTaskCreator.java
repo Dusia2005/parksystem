@@ -7,6 +7,9 @@ import com.project.parksystem.repository.UserJdbcRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * Реализация TaskCreator — создает задачи из формы, используя данные из репозиториев.
+ */
 @Component
 @RequiredArgsConstructor
 public class DefaultTaskCreator implements TaskCreator {
@@ -21,8 +24,10 @@ public class DefaultTaskCreator implements TaskCreator {
         task.setAction(form.getAction());
         task.setCoordX(form.getCoordX());
         task.setCoordY(form.getCoordY());
-        task.setForester(userRepository.findById(form.getForesterId()).orElseThrow());
-        task.setPlant(plantRepository.findByNameIgnoreCase(form.getPlantName()).orElseThrow());
+        task.setForester(userRepository.findById(form.getForesterId())
+                .orElseThrow(() -> new IllegalArgumentException("Лесник не найден")));
+        task.setPlant(plantRepository.findByNameIgnoreCase(form.getPlantName())
+                .orElseThrow(() -> new IllegalArgumentException("Растение не найдено")));
         return task;
     }
 }

@@ -1,3 +1,4 @@
+<!-- Добавление нового растения -->
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -9,6 +10,8 @@
 <section layout:fragment="content">
     <div class="container mt-5" style="max-width: 600px;">
         <h2>Добавить новое растение</h2>
+
+        <!-- Форма добавления растения -->
         <form th:action="@{/plants/new}" method="post" th:object="${plant}">
             <div class="mb-3">
                 <label th:for="*{name}" class="form-label">Название</label>

@@ -10,9 +10,17 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
+/**
+ * Конфигурация для настройки DataSource и JdbcTemplate.
+ */
 @Configuration
 public class JdbcConfig {
 
+    /**
+     * Создает DataSource, использующий ConnectionPool.
+     *
+     * @return настроенный DataSource
+     */
     @Bean
     public DataSource dataSource() {
         return new DataSource() {
@@ -38,17 +46,17 @@ public class JdbcConfig {
 
             @Override
             public PrintWriter getLogWriter() throws SQLException {
-                return null;
+                throw new UnsupportedOperationException("Logging not supported");
             }
 
             @Override
             public void setLogWriter(PrintWriter out) throws SQLException {
-                // no-op
+                throw new UnsupportedOperationException("Logging not supported");
             }
 
             @Override
             public void setLoginTimeout(int seconds) throws SQLException {
-                // no-op
+                throw new UnsupportedOperationException("Login timeout not supported");
             }
 
             @Override
@@ -58,11 +66,17 @@ public class JdbcConfig {
 
             @Override
             public Logger getParentLogger() {
-                return Logger.getLogger("global");
+                return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
             }
         };
     }
 
+    /**
+     * Создает JdbcTemplate с настроенным DataSource.
+     *
+     * @param dataSource источник данных
+     * @return настроенный JdbcTemplate
+     */
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);

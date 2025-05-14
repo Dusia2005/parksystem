@@ -1,3 +1,4 @@
+<!-- Задачи для владельца -->
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -9,9 +10,13 @@
 <section layout:fragment="content">
     <div class="container mt-5">
         <h2>Список задач</h2>
+
+        <!-- Кнопка создания новой задачи -->
         <div class="mb-3">
             <a href="/tasks/new" class="btn btn-primary">Создать новую задачу</a>
         </div>
+
+        <!-- Таблица задач -->
         <table class="table">
             <thead>
             <tr>
@@ -31,29 +36,32 @@
                 <td th:text="${task.forester != null ? task.forester.username : '—'}"></td>
                 <td th:text="${task.description}"></td>
                 <td>
-                  <span th:switch="${task.action.name}">
-                    <span th:case="PLANTING">Посадка</span>
-                    <span th:case="CUTTING">Вырубка</span>
-                    <span th:case="WATERING">Полив</span>
-                    <span th:case="FIRE_EXTINGUISHING">Тушение пожара</span>
-                    <span th:case="PATROLLING">Обход</span>
-                    <span th:case="*">Неизвестно</span>
-                  </span>
+                    <!-- Перевод действия на русский -->
+                    <span th:switch="${task.action.name}">
+            <span th:case="PLANTING">Посадка</span>
+            <span th:case="CUTTING">Вырубка</span>
+            <span th:case="WATERING">Полив</span>
+            <span th:case="FIRE_EXTINGUISHING">Тушение пожара</span>
+            <span th:case="PATROLLING">Обход</span>
+            <span th:case="*">Неизвестно</span>
+          </span>
                 </td>
-                <td th:text="${task.plant.name}"> </td>
+                <td th:text="${task.plant.name}"></td>
                 <td>
+                    <!-- Отображение статуса -->
                     <span th:if="${task.status.name() == 'PENDING'}" class="badge bg-danger text-white">Ожидает</span>
                     <span th:if="${task.status.name() == 'IN_PROGRESS'}" class="badge bg-info text-dark">В процессе</span>
                     <span th:if="${task.status.name() == 'COMPLETED'}" class="badge bg-success text-white">Выполнена</span>
                 </td>
                 <td>
-                  <span th:if="${task.reportText != null and !task.reportText.isEmpty()}"
-                        th:text="${task.reportText}"></span>
-                                    <span th:if="${task.reportText == null or task.reportText.isEmpty()}">
-                    <em>Отчёт отсутствует</em>
-                  </span>
+                    <!-- Отображение отчета -->
+                    <span th:if="${task.reportText != null and !task.reportText.isEmpty()}" th:text="${task.reportText}"></span>
+                    <span th:if="${task.reportText == null or task.reportText.isEmpty()}">
+            <em>Отчёт отсутствует</em>
+          </span>
                 </td>
                 <td>
+                    <!-- Закрытие задачи -->
                     <form th:if="${task.status.name() == 'COMPLETED' and !task.approvedByOwner}"
                           th:action="@{/tasks/approve/{id}(id=${task.id})}" method="post" style="display:inline-block;">
                         <button class="btn btn-success btn-sm" type="submit">Закрыть задачу</button>

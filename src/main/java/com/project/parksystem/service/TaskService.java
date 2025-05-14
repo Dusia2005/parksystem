@@ -2,8 +2,8 @@ package com.project.parksystem.service;
 
 import com.project.parksystem.dto.TaskForm;
 import com.project.parksystem.model.Plant;
-import com.project.parksystem.model.Task;
 import com.project.parksystem.model.Status;
+import com.project.parksystem.model.Task;
 import com.project.parksystem.model.User;
 import com.project.parksystem.observer.OwnerNotifier;
 import com.project.parksystem.observer.TaskEventManager;
@@ -17,8 +17,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Сервис для управления задачами.
+ */
 @Service
 public class TaskService {
+
     private final TaskJdbcRepository taskJdbcRepository;
     private final TaskStrategyFactory strategyFactory;
     private final TaskEventManager taskEventManager;
@@ -38,6 +42,9 @@ public class TaskService {
         this.plantService = plantService;
     }
 
+    /**
+     * Инициализация подписчиков после создания бина.
+     */
     @PostConstruct
     public void init() {
         taskEventManager.subscribe(new OwnerNotifier());
@@ -64,6 +71,9 @@ public class TaskService {
         taskJdbcRepository.delete(id);
     }
 
+    /**
+     * Создает задачу на основе формы.
+     */
     public void createTaskFromForm(TaskForm form) {
         Task task = new Task();
         task.setDescription(form.getDescription());
@@ -88,6 +98,9 @@ public class TaskService {
         taskJdbcRepository.save(task);
     }
 
+    /**
+     * Завершает задачу с использованием стратегии и отправкой уведомления.
+     */
     public void completeTaskWithStrategyAndNotification(Long taskId, String reportText) {
         Task task = getById(taskId);
 
@@ -102,8 +115,11 @@ public class TaskService {
 
         taskEventManager.notify(task);
     }
+
+    /**
+     * Проверяет существование растения по имени.
+     */
     public boolean isValidPlant(String plantName) {
         return plantService.findByNameIgnoreCase(plantName).isPresent();
     }
-
 }

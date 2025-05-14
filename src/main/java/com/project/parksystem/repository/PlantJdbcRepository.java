@@ -11,9 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Репозиторий для работы с таблицей plants через JDBC.
+ */
 @Repository
 public class PlantJdbcRepository {
 
+    /**
+     * Получить список всех растений.
+     */
     public List<Plant> findAll() {
         String sql = "SELECT * FROM plants";
         List<Plant> plants = new ArrayList<>();
@@ -32,6 +38,9 @@ public class PlantJdbcRepository {
         }
     }
 
+    /**
+     * Найти растение по ID.
+     */
     public Optional<Plant> findById(Long id) {
         String sql = "SELECT * FROM plants WHERE id = ?";
 
@@ -51,6 +60,9 @@ public class PlantJdbcRepository {
         }
     }
 
+    /**
+     * Найти растение по имени, без учета регистра.
+     */
     public Optional<Plant> findByNameIgnoreCase(String name) {
         String sql = "SELECT * FROM plants WHERE LOWER(name) = LOWER(?)";
 
@@ -70,10 +82,16 @@ public class PlantJdbcRepository {
         }
     }
 
+    /**
+     * Проверка существования растения по имени (без учета регистра).
+     */
     public boolean existsByNameIgnoreCase(String name) {
         return findByNameIgnoreCase(name).isPresent();
     }
 
+    /**
+     * Сохранение нового растения.
+     */
     public void save(Plant plant) {
         String sql = "INSERT INTO plants (name) VALUES (?)";
 
@@ -88,6 +106,9 @@ public class PlantJdbcRepository {
         }
     }
 
+    /**
+     * Удалить растение по ID.
+     */
     public void deleteById(Long id) {
         String sql = "DELETE FROM plants WHERE id = ?";
 
@@ -102,6 +123,9 @@ public class PlantJdbcRepository {
         }
     }
 
+    /**
+     * Маппинг строки результата запроса в объект Plant.
+     */
     private Plant mapRowToPlant(ResultSet rs) throws Exception {
         Plant plant = new Plant();
         plant.setId(rs.getLong("id"));

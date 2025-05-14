@@ -1,26 +1,38 @@
+<!-- Отображение статистики лесников -->
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
+
 <head>
+  <!-- Устанавливаем название страницы -->
   <title>Статистика лесников</title>
   <style>
+    /* Стиль для ссылок в заголовках таблицы */
     th a {
       color: black;
       text-decoration: none;
     }
+
+    /* Стиль для ссылок при наведении */
     th a:hover {
       text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
+<!-- Фрагмент с содержимым, который будет вставлен в шаблон -->
 <section layout:fragment="content">
   <div class="container mt-5">
+    <!-- Заголовок страницы -->
     <h2>📊 Статистика лесников</h2>
+
+    <!-- Таблица для отображения статистики -->
     <table class="table table-bordered">
       <thead>
       <tr>
+        <!-- Заголовки таблицы с ссылками для сортировки -->
         <th><a th:href="@{/statistics(sort='id')}">ID</a></th>
         <th><a th:href="@{/statistics(sort='username')}">Лесник</a></th>
         <th><a th:href="@{/statistics(sort='kilometers')}">Километры</a></th>
@@ -32,7 +44,9 @@
       </tr>
       </thead>
       <tbody>
+      <!-- Перебор статистики для каждого лесника -->
       <tr th:each="s : ${stats}">
+        <!-- Вывод данных статистики для каждого лесника -->
         <td th:text="${s.id}"></td>
         <td th:text="${s.username}"></td>
         <td th:text="${#numbers.formatDecimal(s.kilometers, 1, 2)} + ' км'"></td>
@@ -48,4 +62,5 @@
   </div>
 </section>
 </body>
+
 </html>

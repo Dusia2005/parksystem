@@ -1,3 +1,4 @@
+<!-- Регистрация новых пользователей-->
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -8,30 +9,49 @@
 <body>
 <section layout:fragment="content">
   <div class="container mt-5" style="max-width: 500px;">
+
+    <!-- Заголовок формы -->
     <h3>Регистрация</h3>
+
+    <!-- Форма регистрации -->
     <form action="/register" method="post">
+      <!-- CSRF-токен для безопасности -->
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+      <!-- Поле ввода имени пользователя -->
       <div class="mb-3">
         <label>Имя пользователя</label>
         <input class="form-control" type="text" name="username" required>
       </div>
+
+      <!-- Поле ввода пароля -->
       <div class="mb-3">
         <label>Пароль</label>
         <input class="form-control" type="password" name="password" required>
       </div>
+
+      <!-- Повтор пароля -->
       <div class="mb-3">
         <label>Повторите пароль</label>
         <input class="form-control" type="password" name="confirmPassword" required>
       </div>
+
+      <!-- Секретное слово для определения роли -->
       <div class="mb-3">
         <label>Секретное слово (ВЛАДЕЛЕЦ / ЛЕСНИК)</label>
         <input class="form-control" type="text" name="secretWord" required>
       </div>
+
+      <!-- Кнопка отправки формы -->
       <button class="btn btn-primary" type="submit">Зарегистрироваться</button>
+
+      <!-- Ссылка на страницу входа -->
       <div class="text-center mt-3">
         <a th:href="@{/login}" class="text-muted small">Есть аккаунт? Войти</a>
       </div>
     </form>
+
+    <!-- Отображение ошибки при наличии -->
     <p th:if="${error}" th:text="${error}" class="text-danger mt-3"></p>
   </div>
 </section>

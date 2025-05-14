@@ -12,6 +12,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Сервис для расчёта статистики по лесникам.
+ */
 @Service
 public class StatisticsService {
 
@@ -23,6 +26,13 @@ public class StatisticsService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Вычисляет расстояние в км туда и обратно по координатам.
+     *
+     * @param x координата X
+     * @param y координата Y
+     * @return расстояние в километрах
+     */
     public double getRoundTripDistanceInKm(int x, int y) {
         final int baseX = 320;
         final int baseY = 122;
@@ -35,6 +45,11 @@ public class StatisticsService {
         return (distanceMeters * 2) / 1000.0;
     }
 
+    /**
+     * Получает статистику по всем лесникам.
+     *
+     * @return список объектов статистики
+     */
     public List<ForesterStatisticsDto> getForestersStatistics() {
         List<User> foresters = userRepository.findAllByRole(Role.valueOf("FORESTER"));
         List<ForesterStatisticsDto> stats = new ArrayList<>();
@@ -59,7 +74,9 @@ public class StatisticsService {
                         }
 
                         if (task.getCreatedAt() != null && task.getUpdatedAt() != null) {
-                            totalDuration = totalDuration.plus(Duration.between(task.getCreatedAt(), task.getUpdatedAt()));
+                            totalDuration = totalDuration.plus(
+                                    Duration.between(task.getCreatedAt(), task.getUpdatedAt())
+                            );
                         }
                     }
                     case IN_PROGRESS -> inProgress++;
@@ -85,6 +102,14 @@ public class StatisticsService {
         return stats;
     }
 
+    /**
+     * Определяет уровень лесника на основе статистики.
+     *
+     * @param completed количество завершённых задач
+     * @param km        километраж
+     * @param time      общее рабочее время
+     * @return строковое представление уровня
+     */
     private String calculateLevel(long completed, double km, Duration time) {
         long hours = time.toHours();
 
@@ -97,7 +122,7 @@ public class StatisticsService {
         if (completed >= 20 && km >= 10 && hours >= 60) return "Знаток леса";
         if (completed >= 15 && km >= 8 && hours >= 40) return "Опытный";
         if (completed >= 10 && km >= 5 && hours >= 20) return "Помощник лесника";
+
         return "Новичок";
     }
 }
-

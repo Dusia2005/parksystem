@@ -2,6 +2,9 @@ package com.project.parksystem.model;
 
 import lombok.Data;
 
+/**
+ * Модель пользователя.
+ */
 @Data
 public class User {
     private Long id;

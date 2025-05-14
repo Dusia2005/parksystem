@@ -1,8 +1,8 @@
-<!-- fragments.html -->
+<!--Основные элементы страницы-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Меню -->
+<!-- Меню навигации (вставляется через фрагмент sidebar) -->
 <div th:fragment="sidebar">
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container px-4">
@@ -11,14 +11,18 @@
               data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
+
+      <!-- Основные пункты меню -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link" th:href="@{/}">Главная</a></li>
-          <!-- Для лесника -->
+
+          <!-- Меню для роли "лесник" -->
           <li class="nav-item" th:if="${#authorization.expression('hasRole(''FORESTER'')')}">
             <a class="nav-link" th:href="@{/tasks/forester-tasks}">Мои задачи</a>
           </li>
-          <!-- Для владельца -->
+
+          <!-- Меню для роли "владелец" -->
           <li class="nav-item" th:if="${#authorization.expression('hasRole(''OWNER'')')}">
             <a class="nav-link" th:href="@{/tasks/owner-tasks}">Задачи</a>
           </li>
@@ -31,12 +35,13 @@
           <li class="nav-item" th:if="${#authorization.expression('hasRole(''OWNER'')')}">
             <a class="nav-link" th:href="@{/statistics}">Статистика лесников</a>
           </li>
-          <!-- Если пользователь не вошёл в систему -->
+
+          <!-- Вход в систему, если пользователь не авторизован -->
           <li class="nav-item" th:if="${not #authorization.expression('isAuthenticated()')}">
             <a class="nav-link" th:href="@{/login}">Войти</a>
           </li>
 
-          <!-- Если пользователь вошёл -->
+          <!-- Выход из системы, если пользователь авторизован -->
           <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
             <form th:action="@{/logout}" method="post" style="display: inline;">
               <button type="submit" class="nav-link btn btn-link text-white" style="text-decoration: none;">Выйти</button>
@@ -48,7 +53,7 @@
   </nav>
 </div>
 
-<!-- Подвал -->
+<!-- Подвал (вставляется через фрагмент footer) -->
 <div th:fragment="footer">
   <footer class="bg-dark py-3 text-white text-center mt-auto">
     <div class="container">

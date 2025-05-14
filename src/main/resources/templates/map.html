@@ -1,3 +1,4 @@
+<!-- Отображение карты -->
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -9,45 +10,57 @@
 <section layout:fragment="content">
   <div class="container mt-5">
     <h2>Карта задачи</h2>
+
+    <!-- Отображение описания задачи -->
     <p><strong>Описание:</strong> <span th:text="${task.description}"></span></p>
 
+    <!-- Карта с маркером -->
     <div style="position: relative;">
       <img src="/assets/les.jpg" id="map" style="width: 100%; max-width: 600px;" />
       <div id="marker" style="position: absolute; font-size: 32px;"></div>
     </div>
-    <!-- Для владельца -->
-    <a th:if="${userRole == 'OWNER' and from == 'owner'}" th:href="@{/tasks/owner-tasks}" class="btn btn-secondary mt-3">Назад</a>
-    <a th:if="${userRole == 'OWNER' and from == 'history'}" th:href="@{/tasks/history}" class="btn btn-secondary mt-3">Назад</a>
+
+    <!-- Кнопки "Назад" в зависимости от роли пользователя -->
+    <!-- Для владельца задачи -->
+    <a th:if="${userRole == 'OWNER' and from == 'owner'}"
+       th:href="@{/tasks/owner-tasks}"
+       class="btn btn-secondary mt-3">Назад</a>
+
+    <a th:if="${userRole == 'OWNER' and from == 'history'}"
+       th:href="@{/tasks/history}"
+       class="btn btn-secondary mt-3">Назад</a>
 
     <!-- Для лесника -->
     <a th:if="${userRole == 'FORESTER'}"
-       th:href="@{/tasks/forester-tasks}" class="btn btn-secondary mt-3">Назад</a>
-
+       th:href="@{/tasks/forester-tasks}"
+       class="btn btn-secondary mt-3">Назад</a>
   </div>
 
+  <!-- Скрипт отображения маркера на изображении -->
   <script th:inline="javascript">
     const x = [[${task.coordX}]];
     const y = [[${task.coordY}]];
-    const action = /*[[${task.action.name}]]*/ "UNKNOWN"; // fallback, если task.action.name не определён
+    const action = /*[[${task.action.name}]]*/ "UNKNOWN"; // значение по умолчанию
 
+    // Выбор иконки в зависимости от действия
     let icon = '📍';
     switch (action) {
-        case 'PLANTING': icon = '🌱'; break;
-        case 'CUTTING': icon = '❌'; break;
-        case 'WATERING': icon = '💧'; break;
-        case 'FIRE_EXTINGUISHING': icon = '🔥'; break;
-        case 'PATROLLING': icon = '🚶'; break;
+      case 'PLANTING': icon = '🌱'; break;
+      case 'CUTTING': icon = '❌'; break;
+      case 'WATERING': icon = '💧'; break;
+      case 'FIRE_EXTINGUISHING': icon = '🔥'; break;
+      case 'PATROLLING': icon = '🚶'; break;
     }
 
     const marker = document.getElementById('marker');
     marker.innerText = icon;
 
-    // Подождать, пока иконка отрендерится, чтобы узнать размеры
+    // Центрируем иконку по координатам
     setTimeout(() => {
-        const width = marker.offsetWidth;
-        const height = marker.offsetHeight;
-        marker.style.left = (x - width / 2) + 'px';
-        marker.style.top = (y - height / 2) + 'px';
+      const width = marker.offsetWidth;
+      const height = marker.offsetHeight;
+      marker.style.left = (x - width / 2) + 'px';
+      marker.style.top = (y - height / 2) + 'px';
     }, 0);
   </script>
 </section>

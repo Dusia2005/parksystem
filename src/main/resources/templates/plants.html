@@ -1,49 +1,58 @@
+<!-- Отображение всех растений леса -->
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
   <title>Список растений</title>
+  <!-- Подключение Bootstrap для стилизации -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 <section layout:fragment="content">
-<div class="container mt-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">🌿 Растения леса</h2>
-    <a class="btn btn-success" href="/plants/new">➕ Добавить</a>
-  </div>
+  <div class="container mt-5">
 
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover align-middle shadow-sm">
-      <thead class="table-dark">
-      <tr>
-        <th style="width: 5%;">#</th>
-        <th style="width: 60%;">Название</th>
-        <th style="width: 35%;">Действия</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="plant : ${plants}">
-        <td th:text="${plant.id}"></td>
-        <td th:text="${plant.name}" class="fw-semibold"></td>
-        <td>
-          <div class="d-flex gap-2">
-            <a th:href="@{'/plants/edit/' + ${plant.id}}" class="btn btn-warning btn-sm">
-              ✏️ Редактировать
-            </a>
-            <form th:action="@{'/plants/delete/' + ${plant.id}}" method="post" style="display:inline;">
-              <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Удалить растение?');">
-                🗑️ Удалить
-              </button>
-            </form>
-          </div>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+    <!-- Заголовок и кнопка добавления нового растения -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">🌿 Растения леса</h2>
+      <a class="btn btn-success" href="/plants/new">➕ Добавить</a>
+    </div>
+
+    <!-- Таблица с перечнем растений -->
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped table-hover align-middle shadow-sm">
+        <thead class="table-dark">
+        <tr>
+          <th style="width: 5%;">#</th>
+          <th style="width: 60%;">Название</th>
+          <th style="width: 35%;">Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Перебор списка растений -->
+        <tr th:each="plant : ${plants}">
+          <td th:text="${plant.id}"></td>
+          <td th:text="${plant.name}" class="fw-semibold"></td>
+          <td>
+            <!-- Кнопки редактирования и удаления -->
+            <div class="d-flex gap-2">
+              <a th:href="@{'/plants/edit/' + ${plant.id}}" class="btn btn-warning btn-sm">
+                ✏️ Редактировать
+              </a>
+              <form th:action="@{'/plants/delete/' + ${plant.id}}" method="post" style="display:inline;">
+                <button class="btn btn-danger btn-sm" type="submit"
+                        onclick="return confirm('Удалить растение?');">
+                  🗑️ Удалить
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
   </div>
-</div>
 </section>
 </body>
 </html>

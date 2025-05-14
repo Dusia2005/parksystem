@@ -1,57 +1,80 @@
 plugins {
+	// Плагин для компиляции Java кода
 	id 'java'
+
+	// Плагин для Spring Boot
 	id 'org.springframework.boot' version '3.4.3'
+
+	// Плагин для управления зависимостями Spring
 	id 'io.spring.dependency-management' version '1.1.7'
 }
+
+// Задание JVM аргументов для запуска приложения
 bootRun {
-	jvmArgs = ["-Dfile.encoding=UTF-8"]
+	jvmArgs = ["-Dfile.encoding=UTF-8"]  // Устанавливаем кодировку UTF-8 для корректного отображения текста
 }
 
+// Установка группы и версии для проекта
 group = 'com.project'
 version = '0.0.1-SNAPSHOT'
 
+// Установка версии Java для использования с проектом (в данном случае Java 23)
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(23)
+		languageVersion = JavaLanguageVersion.of(23)  // Устанавливаем версию Java
 	}
 }
 
+// Конфигурации зависимостей
 configurations {
+	// Конфигурация для зависимостей только для компиляции
 	compileOnly {
-		extendsFrom annotationProcessor
+		extendsFrom annotationProcessor  // Расширяем конфигурацию для аннотаций
 	}
+
+	// Исключаем определённую зависимость Spring Boot для логирования
 	all {
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'  // Исключаем стандартный логгер Spring Boot
 	}
 }
 
+// Репозитории для поиска зависимостей
 repositories {
+	// Репозиторий Maven Central для загрузки зависимостей
 	mavenCentral()
 }
 
+// Определение зависимостей проекта
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-	implementation 'com.microsoft.sqlserver:mssql-jdbc:12.6.1.jre11'
-	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.2.1'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	//log4j2
-	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
-	implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
-	implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
+	// Зависимости для работы с базой данных и веб-приложением
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'  // Для работы с JDBC
+	implementation 'org.springframework.boot:spring-boot-starter-security'  // Для обеспечения безопасности
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'  // Для работы с Thymeleaf
+	implementation 'org.springframework.boot:spring-boot-starter-web'  // Для создания веб-приложения
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'  // Дополнительные функции Thymeleaf для Spring Security
+	implementation 'com.microsoft.sqlserver:mssql-jdbc:12.6.1.jre11'  // Драйвер для подключения к MS SQL Server
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.2.1'  // Диалект для Thymeleaf
 
-	runtimeOnly 'org.postgresql:postgresql'
-	compileOnly 'org.projectlombok:lombok'
+	// Зависимости для Lombok (помощник для упрощения кода)
+	compileOnly 'org.projectlombok:lombok'  // Для использования аннотаций Lombok
+	annotationProcessor 'org.projectlombok:lombok'  // Для обработки аннотаций Lombok
+
+	// Зависимости для подключения MySQL и PostgreSQL
+	runtimeOnly 'com.mysql:mysql-connector-j'  // Для работы с MySQL
+	runtimeOnly 'org.postgresql:postgresql'  // Для работы с PostgreSQL
+
+	// Зависимости для тестирования
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'  // Для тестирования Spring приложений
+	testImplementation 'org.springframework.security:spring-security-test'  // Для тестирования безопасности Spring Security
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'  // Для запуска JUnit тестов
+
+	// Логирование с использованием Log4j2
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'  // Стартовый модуль Log4j2 для Spring Boot
+	implementation 'org.apache.logging.log4j:log4j-core:2.20.0'  // Основной модуль Log4j2
+	implementation 'org.apache.logging.log4j:log4j-api:2.20.0'  // API для работы с Log4j2
 }
 
+// Настройка тестов для использования JUnit Platform
 tasks.named('test') {
-	useJUnitPlatform()
+	useJUnitPlatform()  // Указываем использование JUnit Platform для тестирования
 }

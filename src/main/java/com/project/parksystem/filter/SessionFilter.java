@@ -24,9 +24,9 @@ public class SessionFilter implements Filter {
         boolean loggedIn = session != null && session.getAttribute("username") != null;
 
         if (!loggedIn) {
-            res.sendRedirect("/login"); // редирект если пользователь не вошёл
+            res.sendRedirect("/login"); // Перенаправление на страницу входа
         } else {
-            chain.doFilter(request, response); // продолжить выполнение
+            chain.doFilter(request, response); // Продолжение обработки запроса
         }
     }
 }

@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Менеджер событий задач. Позволяет подписывать и уведомлять наблюдателей.
+ */
 @Component
 public class TaskEventManager {
 

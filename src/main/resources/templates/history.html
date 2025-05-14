@@ -1,3 +1,4 @@
+<!-- История задач -->
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -10,7 +11,6 @@
   <div class="container mt-5">
     <h2>История завершённых задач</h2>
     <table class="table">
-      <thead>
       <thead>
       <tr>
         <th>ID</th>
@@ -25,41 +25,51 @@
       </tr>
       </thead>
       <tbody>
+      <!-- Перебор задач -->
       <tr th:each="task : ${tasks}">
         <td th:text="${task.id}"></td>
         <td th:text="${task.forester != null ? task.forester.username : '—'}"></td>
         <td th:text="${task.description}"></td>
+
+        <!-- Отображение типа действия -->
         <td>
-    <span th:switch="${task.action.name}">
-      <span th:case="PLANTING">Посадка</span>
-      <span th:case="CUTTING">Вырубка</span>
-      <span th:case="WATERING">Полив</span>
-      <span th:case="FIRE_EXTINGUISHING">Тушение пожара</span>
-      <span th:case="PATROLLING">Обход</span>
-      <span th:case="*">Неизвестно</span>
-    </span>
+            <span th:switch="${task.action.name}">
+              <span th:case="PLANTING">Посадка</span>
+              <span th:case="CUTTING">Вырубка</span>
+              <span th:case="WATERING">Полив</span>
+              <span th:case="FIRE_EXTINGUISHING">Тушение пожара</span>
+              <span th:case="PATROLLING">Обход</span>
+              <span th:case="*">Неизвестно</span>
+            </span>
         </td>
-        <td th:text="${task.plant.name}"> </td>
+
+        <td th:text="${task.plant.name}"></td>
+
+        <!-- Статус задачи -->
         <td>
           <span th:if="${task.status.name() == 'COMPLETED'}" class="badge bg-success text-white">Выполнена</span>
         </td>
+
+        <!-- Отчёт по задаче -->
         <td>
-          <span th:if="${task.reportText != null and !task.reportText.isEmpty()}"
-                th:text="${task.reportText}"></span>
-                    <span th:if="${task.reportText == null or task.reportText.isEmpty()}">
-            <em>Отчёт отсутствует</em>
-          </span>
+            <span th:if="${task.reportText != null and !task.reportText.isEmpty()}"
+                  th:text="${task.reportText}"></span>
+          <span th:if="${task.reportText == null or task.reportText.isEmpty()}">
+              <em>Отчёт отсутствует</em>
+            </span>
         </td>
+
+        <!-- Дата начала и окончания -->
         <td>
           <span th:text="${#temporals.format(task.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
           &nbsp;-&nbsp;
           <span th:text="${#temporals.format(task.updatedAt, 'dd.MM.yyyy HH:mm')}"></span>
         </td>
+
+        <!-- Действия над задачей -->
         <td>
           <div class="btn-group" role="group">
-            <!-- Кнопка карта -->
             <a th:href="@{/tasks/{id}/map(id=${task.id}, from='history')}" class="btn btn-primary btn-sm">Карта</a>
-            </form>
           </div>
         </td>
       </tr>

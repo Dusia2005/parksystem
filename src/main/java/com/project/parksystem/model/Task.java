@@ -3,6 +3,9 @@ package com.project.parksystem.model;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+/**
+ * Модель задачи.
+ */
 @Data
 public class Task {
     private Long id;

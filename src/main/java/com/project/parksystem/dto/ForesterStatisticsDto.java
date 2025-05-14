@@ -2,7 +2,11 @@ package com.project.parksystem.dto;
 
 import java.time.Duration;
 
+/**
+ * DTO для представления статистики по леснику.
+ */
 public class ForesterStatisticsDto {
+
     private Long id;
     private String username;
     private double kilometers;
@@ -10,41 +14,10 @@ public class ForesterStatisticsDto {
     private long inProgressTasks;
     private long pendingTasks;
     private Duration totalWorkTime;
-    private String level; // "Новичок", "Опытный", "Знаток леса"
+    private String level; // например, "Новичок", "Опытный", "Знаток леса"
 
-    // геттеры и сеттеры
+    // Геттеры
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setKilometers(double kilometers) {
-        this.kilometers = kilometers;
-    }
-
-    public void setCompletedTasks(long completedTasks) {
-        this.completedTasks = completedTasks;
-    }
-
-    public void setInProgressTasks(long inProgressTasks) {
-        this.inProgressTasks = inProgressTasks;
-    }
-
-    public void setPendingTasks(long pendingTasks) {
-        this.pendingTasks = pendingTasks;
-    }
-
-    public void setTotalWorkTime(Duration totalWorkTime) {
-        this.totalWorkTime = totalWorkTime;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
     public Long getId() {
         return id;
     }
@@ -77,6 +50,45 @@ public class ForesterStatisticsDto {
         return level;
     }
 
+    // Сеттеры
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setKilometers(double kilometers) {
+        this.kilometers = kilometers;
+    }
+
+    public void setCompletedTasks(long completedTasks) {
+        this.completedTasks = completedTasks;
+    }
+
+    public void setInProgressTasks(long inProgressTasks) {
+        this.inProgressTasks = inProgressTasks;
+    }
+
+    public void setPendingTasks(long pendingTasks) {
+        this.pendingTasks = pendingTasks;
+    }
+
+    public void setTotalWorkTime(Duration totalWorkTime) {
+        this.totalWorkTime = totalWorkTime;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    /**
+     * Получить форматированное представление общего времени работы.
+     *
+     * @return строка в формате "X д. Y ч. Z мин."
+     */
     public String getFormattedWorkTime() {
         long totalMinutes = totalWorkTime.toMinutes();
         long days = totalMinutes / (60 * 24);
@@ -85,5 +97,4 @@ public class ForesterStatisticsDto {
 
         return String.format("%d д. %d ч. %d мин.", days, hours, minutes);
     }
-
 }

@@ -1,5 +1,7 @@
+<!-- Создание новой задачи -->
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
@@ -9,12 +11,17 @@
 <section layout:fragment="content">
   <div class="container mt-5" style="max-width: 700px;">
     <h2>Создание новой задачи</h2>
+
+    <!-- Форма создания задачи -->
     <form th:action="@{/tasks/new}" method="post" th:object="${task}">
+
+      <!-- Поле описания -->
       <div class="mb-3">
         <label th:for="*{description}" class="form-label">Описание</label>
         <textarea class="form-control" th:field="*{description}" required></textarea>
       </div>
 
+      <!-- Выбор лесника -->
       <div class="mb-3">
         <label th:for="*{foresterId}" class="form-label">Лесник</label>
         <select class="form-select" th:field="*{foresterId}" required>
@@ -22,6 +29,7 @@
         </select>
       </div>
 
+      <!-- Ввод/выбор растения -->
       <div class="mb-3">
         <label th:for="*{plantName}" class="form-label">Растение</label>
         <input list="plants" name="plantName" class="form-control" required />
@@ -30,10 +38,11 @@
         </datalist>
       </div>
 
+      <!-- Выбор действия -->
       <div class="mb-3">
         <label th:for="*{action}" class="form-label">Действие</label>
         <select id="action" class="form-select" th:field="*{action}" onchange="setIcon()">
-        <option value="PLANTING">Посадка</option>
+          <option value="PLANTING">Посадка</option>
           <option value="CUTTING">Вырубка</option>
           <option value="WATERING">Полив</option>
           <option value="FIRE_EXTINGUISHING">Тушение пожара</option>
@@ -41,6 +50,7 @@
         </select>
       </div>
 
+      <!-- Выбор координат на карте -->
       <div class="mb-3">
         <label class="form-label">Отметьте место на карте:</label>
         <div style="position: relative;">
@@ -49,52 +59,55 @@
         </div>
       </div>
 
-      <input type="hidden" th:field="*{coordX}"/>
-      <input type="hidden" th:field="*{coordY}"/>
+      <!-- Скрытые поля для координат -->
+      <input type="hidden" th:field="*{coordX}" id="coordX"/>
+      <input type="hidden" th:field="*{coordY}" id="coordY"/>
 
+      <!-- Кнопки -->
       <button type="submit" class="btn btn-success">Создать задачу</button>
-
       <a href="/tasks/owner-tasks" class="btn btn-secondary">Назад к задачам</a>
     </form>
 
+    <!-- Уведомления -->
     <div th:if="${success}" class="alert alert-success mt-3" th:text="${success}"></div>
     <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
   </div>
 
+  <!-- Скрипт для выбора точки на карте -->
   <script>
     let currentIcon = '🌱';
 
     function setIcon() {
-      const action = document.getElementById('action').value;
-      switch (action) {
-        case 'CUTTING': currentIcon = '❌'; break;
-        case 'WATERING': currentIcon = '💧'; break;
-        case 'PLANTING': currentIcon = '🌱'; break;
-        case 'PATROLLING': currentIcon = '🚶'; break;
-        case 'FIRE_EXTINGUISHING': currentIcon = '🔥'; break;
-        default: currentIcon = '📍';
-      }
+        const action = document.getElementById('action').value;
+        switch (action) {
+            case 'CUTTING': currentIcon = '❌'; break;
+            case 'WATERING': currentIcon = '💧'; break;
+            case 'PLANTING': currentIcon = '🌱'; break;
+            case 'PATROLLING': currentIcon = '🚶'; break;
+            case 'FIRE_EXTINGUISHING': currentIcon = '🔥'; break;
+            default: currentIcon = '📍';
+        }
     }
 
+    // Обработка клика по карте
     document.getElementById('map').addEventListener('click', function (e) {
-      const rect = this.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
-      document.getElementById('coordX').value = Math.round(x);
-      document.getElementById('coordY').value = Math.round(y);
+        document.getElementById('coordX').value = Math.round(x);
+        document.getElementById('coordY').value = Math.round(y);
 
-      const marker = document.getElementById('marker');
-      marker.innerText = currentIcon;
+        const marker = document.getElementById('marker');
+        marker.innerText = currentIcon;
 
-      // Задержка для расчета размеров после вставки иконки
-      setTimeout(() => {
-        const width = marker.offsetWidth;
-        const height = marker.offsetHeight;
-
-        marker.style.left = (x - width / 2) + 'px';
-        marker.style.top = (y - height / 2) + 'px';
-      }, 0);
+        // Центрирование маркера
+        setTimeout(() => {
+            const width = marker.offsetWidth;
+            const height = marker.offsetHeight;
+            marker.style.left = (x - width / 2) + 'px';
+            marker.style.top = (y - height / 2) + 'px';
+        }, 0);
     });
   </script>
 </section>

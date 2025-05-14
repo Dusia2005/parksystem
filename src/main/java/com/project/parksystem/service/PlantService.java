@@ -7,14 +7,21 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Сервисный слой для работы с растениями.
+ */
 @Service
 public class PlantService {
+
     private final PlantJdbcRepository plantJdbcRepository;
 
     public PlantService(PlantJdbcRepository plantDao) {
         this.plantJdbcRepository = plantDao;
     }
 
+    /**
+     * Получить список всех растений.
+     */
     public List<Plant> findAll() {
         try {
             return plantJdbcRepository.findAll();
@@ -23,14 +30,21 @@ public class PlantService {
         }
     }
 
+    /**
+     * Найти растение по ID.
+     */
     public Plant findById(Long id) {
         try {
-            return plantJdbcRepository.findById(id).orElseThrow(() -> new RuntimeException("Растение не найдено"));
+            return plantJdbcRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Растение не найдено"));
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при поиске растения по id", e);
         }
     }
 
+    /**
+     * Найти растение по имени без учета регистра.
+     */
     public Optional<Plant> findByNameIgnoreCase(String name) {
         try {
             return plantJdbcRepository.findByNameIgnoreCase(name);
@@ -39,6 +53,9 @@ public class PlantService {
         }
     }
 
+    /**
+     * Проверить, существует ли растение с таким именем.
+     */
     public boolean existsByNameIgnoreCase(String name) {
         try {
             return plantJdbcRepository.existsByNameIgnoreCase(name);
@@ -47,6 +64,9 @@ public class PlantService {
         }
     }
 
+    /**
+     * Сохранить растение.
+     */
     public Plant savePlant(Plant plant) {
         try {
             plantJdbcRepository.save(plant);
@@ -56,6 +76,9 @@ public class PlantService {
         }
     }
 
+    /**
+     * Создать растение, если с таким именем еще не существует.
+     */
     public Plant createPlantIfNotExists(String name) {
         if (existsByNameIgnoreCase(name)) {
             throw new RuntimeException("Растение с таким именем уже существует!");
@@ -65,6 +88,9 @@ public class PlantService {
         return savePlant(plant);
     }
 
+    /**
+     * Удалить растение по ID.
+     */
     public void deleteById(Long id) {
         try {
             plantJdbcRepository.deleteById(id);

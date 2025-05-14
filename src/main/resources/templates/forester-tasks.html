@@ -1,5 +1,7 @@
+<!-- Задачи для лесника -->
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
@@ -8,8 +10,12 @@
 <body>
 <section layout:fragment="content">
   <div class="container mt-5">
+    <!-- Ошибка при загрузке -->
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
     <h2>Назначенные задачи</h2>
+
+    <!-- Таблица задач -->
     <table class="table table-bordered">
       <thead class="table-dark">
       <tr>
@@ -24,17 +30,17 @@
       </thead>
       <tbody>
       <tr th:each="task : ${tasks}" th:if="${!task.approvedByOwner}">
-      <td th:text="${task.id}"></td>
+        <td th:text="${task.id}"></td>
         <td th:text="${task.description}"></td>
         <td>
-                  <span th:switch="${task.action.name}">
-                    <span th:case="PLANTING">Посадка</span>
-                    <span th:case="CUTTING">Вырубка</span>
-                    <span th:case="WATERING">Полив</span>
-                    <span th:case="FIRE_EXTINGUISHING">Тушение пожара</span>
-                    <span th:case="PATROLLING">Обход</span>
-                    <span th:case="*">Неизвестно</span>
-                  </span>
+                    <span th:switch="${task.action.name}">
+                        <span th:case="PLANTING">Посадка</span>
+                        <span th:case="CUTTING">Вырубка</span>
+                        <span th:case="WATERING">Полив</span>
+                        <span th:case="FIRE_EXTINGUISHING">Тушение пожара</span>
+                        <span th:case="PATROLLING">Обход</span>
+                        <span th:case="*">Неизвестно</span>
+                    </span>
         </td>
         <td th:text="${task.plant.name}"> </td>
         <td>
@@ -44,14 +50,20 @@
         </td>
         <td th:text="${#temporals.format(task.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
         <td>
-          <form th:if="${task.status.name() == 'PENDING'}" th:action="@{/tasks/start/{id}(id=${task.id})}" method="post">
+          <!-- Кнопка начала задачи -->
+          <form th:if="${task.status.name() == 'PENDING'}"
+                th:action="@{/tasks/start/{id}(id=${task.id})}" method="post">
             <button class="btn btn-primary">Принять</button>
           </form>
 
-          <form th:if="${task.status.name() == 'IN_PROGRESS'}" th:action="@{/tasks/complete/{id}(id=${task.id})}" method="post">
+          <!-- Форма завершения задачи -->
+          <form th:if="${task.status.name() == 'IN_PROGRESS'}"
+                th:action="@{/tasks/complete/{id}(id=${task.id})}" method="post">
             <input type="text" name="reportText" placeholder="Отчёт" required class="form-control mb-2">
             <button class="btn btn-success">Завершить</button>
           </form>
+
+          <!-- Кнопка открытия карты -->
           <a th:href="@{/tasks/{id}/map(id=${task.id})}" class="btn btn-info btn-sm">Открыть карту</a>
         </td>
       </tr>
