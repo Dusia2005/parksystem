@@ -14,11 +14,12 @@ import java.util.Optional;
 public class PlantService {
 
     private final PlantJdbcRepository plantJdbcRepository;
+    private final PlantFileService plantFileService; // добавляем
 
-    public PlantService(PlantJdbcRepository plantDao) {
+    public PlantService(PlantJdbcRepository plantDao, PlantFileService plantFileService) {
         this.plantJdbcRepository = plantDao;
+        this.plantFileService = plantFileService;
     }
-
     /**
      * Получить список всех растений.
      */
@@ -93,6 +94,14 @@ public class PlantService {
      */
     public void deleteById(Long id) {
         try {
+            // Получаем растение (если есть) чтобы узнать имя файла
+            Optional<Plant> maybe = plantJdbcRepository.findById(id);
+            if (maybe.isPresent()) {
+                Plant p = maybe.get();
+                if (p.getImageFilename() != null) {
+                    plantFileService.delete(p.getImageFilename());
+                }
+            }
             plantJdbcRepository.deleteById(id);
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при удалении растения", e);

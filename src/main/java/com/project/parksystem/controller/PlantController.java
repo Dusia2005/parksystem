@@ -1,21 +1,21 @@
 package com.project.parksystem.controller;
 
 import com.project.parksystem.model.Plant;
+import com.project.parksystem.service.PlantFileService;
 import com.project.parksystem.service.PlantService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-/**
- * Контроллер для обработки запросов, связанных с растениями.
- */
+import java.net.MalformedURLException;
+
 @Controller
 @RequestMapping("/plants")
 public class PlantController {
@@ -28,15 +28,11 @@ public class PlantController {
     private static final String PLANTS_VIEW = "plants";
 
     private final PlantService plantService;
+    private final PlantFileService fileService;
 
-    /**
-     * Конструктор с внедрением зависимости.
-     *
-     * @param plantService сервис для работы с растениями
-     */
-    @Autowired
-    public PlantController(PlantService plantService) {
+    public PlantController(PlantService plantService, PlantFileService fileService) {
         this.plantService = plantService;
+        this.fileService = fileService;
     }
 
     @GetMapping
@@ -54,19 +50,46 @@ public class PlantController {
     }
 
     @PostMapping("/new")
-    public String createPlant(@ModelAttribute Plant plant, Model model) {
-        LOGGER.info("Попытка создать новое растение: {}", plant.getName());
+    public String createPlant(@ModelAttribute Plant plant,
+                              @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                              @RequestParam(value = "useDefault", required = false) Boolean useDefault,
+                              Model model) {
 
         if (plantService.existsByNameIgnoreCase(plant.getName())) {
-            LOGGER.warn("Растение {} уже существует", plant.getName());
-            model.addAttribute(ERROR_ATTR, "Растение с таким названием уже существует!");
-            return PLANT_FORM_VIEW;
+            model.addAttribute("error", "Растение с таким названием уже существует!");
+            return "plant-form";
         }
 
-        plantService.savePlant(plant);
-        LOGGER.info("Растение {} успешно создано", plant.getName());
-        return "redirect:/plants";
+        try {
+            String storedFilename = null;
+
+            // 1️⃣ Если загрузили файл — сохраняем его
+            if (imageFile != null && !imageFile.isEmpty()) {
+                storedFilename = fileService.store(imageFile);
+            }
+            // 2️⃣ Если не загрузили файл и выбрали "использовать дефолт"
+            else if (useDefault != null && useDefault) {
+                storedFilename = fileService.copyDefaultImage();
+            }
+            // 3️⃣ Иначе ошибка — файл обязателен
+            else {
+                model.addAttribute("error", "Вы не выбрали изображение. Хотите использовать картинку по умолчанию?");
+                model.addAttribute("needDefaultChoice", true);
+                model.addAttribute("plant", plant);
+                return "plant-form";
+            }
+
+            plant.setImageFilename(storedFilename);
+            plantService.savePlant(plant);
+            return "redirect:/plants";
+
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("plant", plant);
+            return PLANT_FORM_VIEW;
+        }
     }
+
 
     @GetMapping("/edit/{id}")
     public String editPlant(@PathVariable Long id, Model model) {
@@ -76,7 +99,10 @@ public class PlantController {
     }
 
     @PostMapping("/update/{id}")
-    public String updatePlant(@PathVariable Long id, @ModelAttribute Plant plant, Model model) {
+    public String updatePlant(@PathVariable Long id,
+                              @ModelAttribute Plant plant,
+                              @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                              Model model) {
         LOGGER.info("Обновление растения ID {} -> {}", id, plant.getName());
         Plant existing = plantService.findById(id);
 
@@ -89,7 +115,24 @@ public class PlantController {
         }
 
         existing.setName(plant.getName());
-        plantService.savePlant(existing);
+
+        try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                // если был предыдущий файл — удаляем
+                if (!StringUtils.isEmpty(existing.getImageFilename())) {
+                    fileService.delete(existing.getImageFilename());
+                }
+                String filename = fileService.store(imageFile);
+                existing.setImageFilename(filename);
+            }
+            plantService.savePlant(existing); // savePlant делает insert — убедись, что для update используется update(...) или savePlant вызывает update при наличии id
+            // Если у тебя savePlant всегда вставляет — вызови plantJdbcRepository.update(existing) здесь вместо savePlant
+        } catch (Exception ex) {
+            model.addAttribute(ERROR_ATTR, ex.getMessage());
+            model.addAttribute(PLANT_ATTR, plant);
+            return PLANT_FORM_VIEW;
+        }
+
         return "redirect:/plants";
     }
 
@@ -98,5 +141,16 @@ public class PlantController {
         LOGGER.info("Удаление растения ID {}", id);
         plantService.deleteById(id);
         return "redirect:/plants";
+    }
+
+    // Отдача изображения по имени
+    @GetMapping("/image/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveImage(@PathVariable String filename) throws MalformedURLException {
+        Resource file = fileService.loadAsResource(filename);
+        if (file == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                .body(file);
     }
 }

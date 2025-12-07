@@ -93,12 +93,13 @@ public class PlantJdbcRepository {
      * Сохранение нового растения.
      */
     public void save(Plant plant) {
-        String sql = "INSERT INTO plants (name) VALUES (?)";
+        String sql = "INSERT INTO plants (name, image_filename) VALUES (?, ?)";
 
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setString(1, plant.getName());
+            stmt.setString(2, plant.getImageFilename());
             stmt.executeUpdate();
 
         } catch (Exception e) {
@@ -130,6 +131,23 @@ public class PlantJdbcRepository {
         Plant plant = new Plant();
         plant.setId(rs.getLong("id"));
         plant.setName(rs.getString("name"));
+        plant.setImageFilename(rs.getString("image_filename")); // <-- added
         return plant;
+    }
+
+    public void update(Plant plant) {
+        String sql = "UPDATE plants SET name = ?, image_filename = ? WHERE id = ?";
+
+        try (Connection connection = ConnectionPool.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setString(1, plant.getName());
+            stmt.setString(2, plant.getImageFilename());
+            stmt.setLong(3, plant.getId());
+            stmt.executeUpdate();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при обновлении растения", e);
+        }
     }
 }
