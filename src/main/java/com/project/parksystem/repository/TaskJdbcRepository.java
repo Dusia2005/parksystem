@@ -1,6 +1,8 @@
 package com.project.parksystem.repository;
 
 import com.project.parksystem.model.*;
+import com.project.parksystem.service.PlantService;
+import com.project.parksystem.service.UserService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -16,9 +18,14 @@ import java.util.Optional;
 public class TaskJdbcRepository {
 
     private final JdbcTemplate jdbc;
+    private  UserService userService;
+    private  PlantService plantService;
 
-    public TaskJdbcRepository(JdbcTemplate jdbc) {
+
+    public TaskJdbcRepository(JdbcTemplate jdbc, UserService userService, PlantService plantService) {
         this.jdbc = jdbc;
+        this.userService = userService;
+        this.plantService = plantService;
     }
 
     // Маппер для преобразования строки из ResultSet в объект Task
@@ -41,16 +48,31 @@ public class TaskJdbcRepository {
         task.setCoordX(rs.getInt("coordx"));
         task.setCoordY(rs.getInt("coordy"));
 
+        // Загружаем растение через PlantService
+        Long plantId = rs.getLong("plant_id");
         Plant plant = new Plant();
-        plant.setId(rs.getLong("plant_id"));
+        plant.setId(plantId);
+        // загрузка имени через PlantService
+        // plantService нужно внедрить в репозиторий через конструктор
+        if (plantId != null) {
+            Plant fullPlant = plantService.findById(plantId);
+            plant.setName(fullPlant.getName());
+        }
         task.setPlant(plant);
 
+        // Загружаем лесника через UserService
+        Long foresterId = rs.getLong("forester_id");
         User forester = new User();
-        forester.setId(rs.getLong("forester_id"));
+        forester.setId(foresterId);
+        if (foresterId != null) {
+            User fullUser = userService.getUserById(foresterId);
+            forester.setUsername(fullUser.getUsername());
+        }
         task.setForester(forester);
 
         return task;
     };
+
 
     /**
      * Получить все задачи.

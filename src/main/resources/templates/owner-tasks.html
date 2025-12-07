@@ -46,7 +46,7 @@
             <span th:case="*">Неизвестно</span>
           </span>
                 </td>
-                <td th:text="${task.plant.name}"></td>
+                <td th:text="${task.plant != null ? task.plant.name : '—'}"></td>
                 <td>
                     <!-- Отображение статуса -->
                     <span th:if="${task.status.name() == 'PENDING'}" class="badge bg-danger text-white">Ожидает</span>
