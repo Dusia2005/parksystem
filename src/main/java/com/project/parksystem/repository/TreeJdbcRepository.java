@@ -119,30 +119,31 @@ public class TreeJdbcRepository {
 
     public Tree saveAndReturn(Tree tree) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
+
         jdbc.update(con -> {
             PreparedStatement ps = con.prepareStatement("""
-                INSERT INTO trees (plant_id, coordx, coordy, status, last_action_at, is_deleted, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, Statement.RETURN_GENERATED_KEYS);
+            INSERT INTO trees (plant_id, coordx, coordy, status, last_action_at, is_deleted, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, new String[]{"id"}); // <-- Указываем КОНКРЕТНЫЙ ключ
 
             Long plantId = tree.getPlant() != null ? tree.getPlant().getId() : null;
             if (plantId != null) ps.setLong(1, plantId); else ps.setNull(1, Types.BIGINT);
-            ps.setInt(2, tree.getCoordX() == null ? 0 : tree.getCoordX());
-            ps.setInt(3, tree.getCoordY() == null ? 0 : tree.getCoordY());
-            ps.setString(4, tree.getStatus() == null ? null : tree.getStatus());
+
+            ps.setInt(2, tree.getCoordX());
+            ps.setInt(3, tree.getCoordY());
+            ps.setString(4, tree.getStatus());
             ps.setTimestamp(5, tree.getLastActionAt() == null ? null : Timestamp.valueOf(tree.getLastActionAt()));
             ps.setBoolean(6, tree.isDeleted());
-            ps.setTimestamp(7, tree.getCreatedAt() == null ? Timestamp.valueOf(LocalDateTime.now()) : Timestamp.valueOf(tree.getCreatedAt()));
+            ps.setTimestamp(7, Timestamp.valueOf(tree.getCreatedAt()));
 
             return ps;
         }, keyHolder);
 
-        Number key = keyHolder.getKey();
-        if (key != null) {
-            tree.setId(key.longValue());
-        }
+        // теперь точно безопасно
+        tree.setId(keyHolder.getKey().longValue());
         return tree;
     }
+
 
     public void update(Tree tree) {
         jdbc.update("""
