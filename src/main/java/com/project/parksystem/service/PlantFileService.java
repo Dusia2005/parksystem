@@ -95,7 +95,7 @@ public class PlantFileService {
     }
     public String copyDefaultImage() {
         try {
-            InputStream is = getClass().getResourceAsStream("/static/assets/dyb.png");
+            InputStream is = getClass().getResourceAsStream("/static/assets/plants/dyb.png");
             if (is == null) {
                 throw new IllegalStateException("Файл dyb.png не найден в resources/static/assets!");
             }

@@ -7,62 +7,96 @@
   <title>Карта задачи</title>
 </head>
 <body>
-<section layout:fragment="content">
-  <div class="container mt-5">
-    <h2>Карта задачи</h2>
 
-    <!-- Отображение описания задачи -->
-    <p><strong>Описание:</strong> <span th:text="${task.description}"></span></p>
+    <section layout:fragment="content">
+        <div class="container mt-5" style="max-width: 700px;">
+            <h2>Карта задачи</h2>
+            <!-- Описание задачи -->
+            <p><strong>Описание:</strong> <span th:text="${task.description}"></span></p>
+            <!-- Карта -->
+            <div id="mapWrapper" style="position: relative; display: inline-block;">
+                <img id="mapImage" src="/assets/les.jpg"
+                     style="width: 100%; max-width: 600px; display: block;"/>
+                <!-- Деревья -->
+                <div id="treesLayer"
+                     style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;">
+                </div>
+                <!-- Маркер задачи -->
+                <div id="taskMarker"
+                     style="position:absolute; font-size:32px; z-index:10; pointer-events:none;">
+                </div>
+            </div>
+            <!-- Кнопки -->
+            <a th:if="${userRole == 'OWNER' and from == 'owner'}"
+               th:href="@{/tasks/owner-tasks}" class="btn btn-secondary mt-3">Назад</a>
 
-    <!-- Карта с маркером -->
-    <div style="position: relative;">
-      <img src="/assets/les.jpg" id="map" style="width: 100%; max-width: 600px;" />
-      <div id="marker" style="position: absolute; font-size: 32px;"></div>
-    </div>
+            <a th:if="${userRole == 'OWNER' and from == 'history'}"
+               th:href="@{/tasks/history}" class="btn btn-secondary mt-3">Назад</a>
 
-    <!-- Кнопки "Назад" в зависимости от роли пользователя -->
-    <!-- Для владельца задачи -->
-    <a th:if="${userRole == 'OWNER' and from == 'owner'}"
-       th:href="@{/tasks/owner-tasks}"
-       class="btn btn-secondary mt-3">Назад</a>
+            <a th:if="${userRole == 'FORESTER'}"
+               th:href="@{/tasks/forester-tasks}" class="btn btn-secondary mt-3">Назад</a>
+        </div>
+        <!-- JS -->
+        <script th:inline="javascript">
 
-    <a th:if="${userRole == 'OWNER' and from == 'history'}"
-       th:href="@{/tasks/history}"
-       class="btn btn-secondary mt-3">Назад</a>
+            /* ----- ДАННЫЕ ----- */
 
-    <!-- Для лесника -->
-    <a th:if="${userRole == 'FORESTER'}"
-       th:href="@{/tasks/forester-tasks}"
-       class="btn btn-secondary mt-3">Назад</a>
-  </div>
+            const taskX = [[${task.coordX}]];
+            const taskY = [[${task.coordY}]];
+            const action = /*[[${task.action.name}]]*/ "UNKNOWN";
+            const trees = /*[[${trees}]]*/ [];
+            /* ----- ИКОНКА ТЕКУЩЕЙ ЗАДАЧИ ----- */
+            function chooseTaskIcon(action) {
+                switch (action) {
+                    case 'PLANTING': return '🌱';
+                    case 'CUTTING': return '❌';
+                    case 'WATERING': return '💧';
+                    case 'FIRE_EXTINGUISHING': return '🔥';
+                    case 'PATROLLING': return '🚶';
+                    default: return '📍';
+                }
+            }
+            const taskMarker = document.getElementById("taskMarker");
+            taskMarker.innerText = chooseTaskIcon(action);
+            /* ----- ОТОБРАЖЕНИЕ МАРКЕРА ЗАДАЧИ ----- */
 
-  <!-- Скрипт отображения маркера на изображении -->
-  <script th:inline="javascript">
-    const x = [[${task.coordX}]];
-    const y = [[${task.coordY}]];
-    const action = /*[[${task.action.name}]]*/ "UNKNOWN"; // значение по умолчанию
+            function positionTaskMarker() {
+                const w = taskMarker.offsetWidth;
+                const h = taskMarker.offsetHeight;
 
-    // Выбор иконки в зависимости от действия
-    let icon = '📍';
-    switch (action) {
-      case 'PLANTING': icon = '🌱'; break;
-      case 'CUTTING': icon = '❌'; break;
-      case 'WATERING': icon = '💧'; break;
-      case 'FIRE_EXTINGUISHING': icon = '🔥'; break;
-      case 'PATROLLING': icon = '🚶'; break;
-    }
+                taskMarker.style.left = (taskX - w / 2) + "px";
+                taskMarker.style.top = (taskY - h / 2) + "px";
+            }
+            /* ----- ОТОБРАЖЕНИЕ ВСЕХ ДЕРЕВЬЕВ ----- */
+            function renderTrees() {
+                const container = document.getElementById("treesLayer");
+                container.innerHTML = "";
 
-    const marker = document.getElementById('marker');
-    marker.innerText = icon;
+                trees.forEach(tree => {
+                    const el = document.createElement("div");
+                    el.style.position = "absolute";
+                    el.style.left = (tree.coordX - 20) + "px";
+                    el.style.top = (tree.coordY - 20) + "px";
+                    el.style.pointerEvents = "none";
 
-    // Центрируем иконку по координатам
-    setTimeout(() => {
-      const width = marker.offsetWidth;
-      const height = marker.offsetHeight;
-      marker.style.left = (x - width / 2) + 'px';
-      marker.style.top = (y - height / 2) + 'px';
-    }, 0);
-  </script>
-</section>
-</body>
-</html>
+                    const img = document.createElement("img");
+                    img.src = "/assets/plants/" + tree.plant.imageFilename;
+                    img.style.width = "40px";
+                    img.style.height = "40px";
+                    img.style.objectFit = "contain";
+                    img.title = tree.plant.name + " (ID: " + tree.id + ")";
+
+                    el.appendChild(img);
+                    container.appendChild(el);
+                });
+            }
+            /* ----- ИНИЦИАЛИЗАЦИЯ ----- */
+
+            window.addEventListener("load", () => {
+                renderTrees();
+                positionTaskMarker();
+            });
+        </script>
+    </section>
+    </body>
+    </html>

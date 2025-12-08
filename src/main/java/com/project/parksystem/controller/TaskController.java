@@ -1,14 +1,8 @@
 package com.project.parksystem.controller;
 
 import com.project.parksystem.dto.TaskForm;
-import com.project.parksystem.model.Plant;
-import com.project.parksystem.model.Status;
-import com.project.parksystem.model.Task;
-import com.project.parksystem.model.User;
-import com.project.parksystem.service.PlantService;
-import com.project.parksystem.service.StatisticsService;
-import com.project.parksystem.service.TaskService;
-import com.project.parksystem.service.UserService;
+import com.project.parksystem.model.*;
+import com.project.parksystem.service.*;
 import com.project.parksystem.strategy.TaskStrategyFactory;
 
 import org.slf4j.Logger;
@@ -41,6 +35,9 @@ public class TaskController {
 
     @Autowired
     private PlantService plantService;
+
+    @Autowired
+    private TreeService treeService;
 
     @Autowired
     private TaskStrategyFactory strategyFactory;
@@ -93,6 +90,7 @@ public class TaskController {
         model.addAttribute("task", new TaskForm());
         model.addAttribute("foresters", userService.getAllForesters());
         model.addAttribute("allowedPlants", plantService.findAll());
+        model.addAttribute("trees", treeService.getAllTrees());
 
         return "create-task";
     }
@@ -103,20 +101,44 @@ public class TaskController {
     @PostMapping("/new")
     public String createTask(TaskForm form, Model model) {
         User forester = userService.getUserById(form.getForesterId());
-        logger.info("Создание задачи для лесника {} и растения {}", forester.getUsername(), form.getPlantName());
 
-        if (!taskService.isValidPlant(form.getPlantName())) {
-            model.addAttribute("error", "Неверное растение");
-            model.addAttribute("task", form);
-            model.addAttribute("foresters", userService.getAllForesters());
-            return "create-task";
+        // если действие = посадка → нужно проверить координаты
+        if (form.getAction() == Action.PLANTING) {
+
+            // проверка дома
+            if (treeService.isInsideHome(form.getCoordX(), form.getCoordY())) {
+                model.addAttribute("error", "Здесь находится дом. Сажать нельзя!");
+                return reloadCreateForm(model, form);
+            }
+
+            // проверка дерева в радиусе
+            if (treeService.isPlaceOccupied(form.getCoordX(), form.getCoordY(), 60)) {
+                model.addAttribute("error", "В этом месте уже есть дерево или оно слишком близко!");
+                return reloadCreateForm(model, form);
+            }
+        }
+
+        // действие НЕ посадка → автоматически подставляем растение
+        if (form.getAction() != Action.PLANTING) {
+            Plant found = treeService.findTreeAt(form.getCoordX(), form.getCoordY(), 60);
+            if (found == null) {
+                model.addAttribute("error", "Выберите дерево на карте!");
+                return reloadCreateForm(model, form);
+            }
+            form.setPlantName(found.getName());
         }
 
         taskService.createTaskFromForm(form);
-        model.addAttribute("success", "Задача успешно создана!");
-
         return "redirect:/tasks/owner-tasks";
     }
+
+    private String reloadCreateForm(Model model, TaskForm form) {
+        model.addAttribute("task", form);
+        model.addAttribute("foresters", userService.getAllForesters());
+        model.addAttribute("allowedPlants", plantService.findAll());
+        return "create-task";
+    }
+
 
     /**
      * Отображение задач для текущего лесника.
@@ -186,23 +208,21 @@ public class TaskController {
      * Отображение карты с маршрутом задачи.
      */
     @GetMapping("/{id}/map")
-    public String showTaskMap(@PathVariable Long id,
-                              @RequestParam(required = false) String from,
-                              Model model,
-                              Principal principal) {
-
-        logger.info("Показ карты для задачи ID {} пользователем {}", id, principal.getName());
+    public String showTaskMap(
+            @PathVariable Long id,
+            @RequestParam(required = false) String from,
+            Model model,
+            Principal principal) {
 
         Task task = taskService.getById(id);
         User currentUser = userService.findByUsername(principal.getName());
 
-        if (currentUser == null) {
-            throw new RuntimeException("Пользователь не найден");
-        }
-
         model.addAttribute("task", task);
         model.addAttribute("userRole", currentUser.getRole().name());
-        model.addAttribute("from", from); // для возврата на страницу, откуда пришли
+        model.addAttribute("from", from);
+
+        // 🟢 ДОБАВЛЯЕМ ВСЕ ДЕРЕВЬЯ НА КАРТУ
+        model.addAttribute("trees", treeService.getAllTrees());
 
         return "map";
     }
@@ -231,4 +251,6 @@ public class TaskController {
         taskService.deleteById(id);
         return "redirect:/tasks/history";
     }
+
+
 }

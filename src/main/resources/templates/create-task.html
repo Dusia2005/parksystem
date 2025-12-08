@@ -32,7 +32,7 @@
       <!-- Ввод/выбор растения -->
       <div class="mb-3">
         <label th:for="*{plantName}" class="form-label">Растение</label>
-        <input list="plants" name="plantName" class="form-control" required />
+          <input list="plants" id="plantInput" name="plantName" class="form-control" required />
         <datalist id="plants">
           <option th:each="plant : ${allowedPlants}" th:value="${plant.name}" />
         </datalist>
@@ -41,7 +41,7 @@
       <!-- Выбор действия -->
       <div class="mb-3">
         <label th:for="*{action}" class="form-label">Действие</label>
-        <select id="action" class="form-select" th:field="*{action}" onchange="setIcon()">
+        <select id="action" class="form-select" th:field="*{action}" onchange="updatePlantField()">
           <option value="PLANTING">Посадка</option>
           <option value="CUTTING">Вырубка</option>
           <option value="WATERING">Полив</option>
@@ -50,14 +50,24 @@
         </select>
       </div>
 
-      <!-- Выбор координат на карте -->
-      <div class="mb-3">
-        <label class="form-label">Отметьте место на карте:</label>
-        <div style="position: relative;">
-          <img src="/assets/les.jpg" id="map" style="width: 100%; max-width: 600px;" />
-          <div id="marker" style="position: absolute; font-size: 24px;"></div>
+        <div class="mb-3">
+            <label class="form-label">Отметьте место на карте:</label>
+            <div style="position: relative; display: inline-block;">
+                <!-- Контейнер карты с деревьями -->
+                <div id="mapContainer" style="position: relative;">
+                    <img src="/assets/les.jpg" id="map" style="width: 100%; max-width: 600px; display: block;" />
+
+                    <!-- Контейнер для маркеров (деревьев) -->
+                    <div id="markersContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                        <!-- Динамически добавляемые маркеры будут здесь -->
+                    </div>
+
+                    <!-- Маркер для новой задачи -->
+                    <div id="taskMarker" style="position: absolute; font-size: 24px; z-index: 10; pointer-events: none;"></div>
+                </div>
+            </div>
         </div>
-      </div>
+
 
       <!-- Скрытые поля для координат -->
       <input type="hidden" th:field="*{coordX}" id="coordX"/>
@@ -74,42 +84,104 @@
   </div>
 
   <!-- Скрипт для выбора точки на карте -->
-  <script>
-    let currentIcon = '🌱';
+    <script th:inline="javascript">
+        let currentIcon = '🌱';
+        const mapContainer = document.getElementById('mapContainer');
+        const map = document.getElementById('map');
+        const markersContainer = document.getElementById('markersContainer');
+        const taskMarker = document.getElementById('taskMarker');
 
-    function setIcon() {
-        const action = document.getElementById('action').value;
-        switch (action) {
-            case 'CUTTING': currentIcon = '❌'; break;
-            case 'WATERING': currentIcon = '💧'; break;
-            case 'PLANTING': currentIcon = '🌱'; break;
-            case 'PATROLLING': currentIcon = '🚶'; break;
-            case 'FIRE_EXTINGUISHING': currentIcon = '🔥'; break;
-            default: currentIcon = '📍';
+        // Функция установки иконки в зависимости от действия
+        function setIcon() {
+            const action = document.getElementById('action').value;
+            switch (action) {
+                case 'CUTTING': currentIcon = '❌'; break;
+                case 'WATERING': currentIcon = '💧'; break;
+                case 'PLANTING': currentIcon = '🌱'; break;
+                case 'PATROLLING': currentIcon = '🚶'; break;
+                case 'FIRE_EXTINGUISHING': currentIcon = '🔥'; break;
+                default: currentIcon = '📍';
+            }
         }
-    }
 
-    // Обработка клика по карте
-    document.getElementById('map').addEventListener('click', function (e) {
-        const rect = this.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        // Обновление поля растения
+        function updatePlantField() {
+            const plantInput = document.getElementById('plantInput');
+            const action = document.getElementById('action').value;
+            setIcon();
 
-        document.getElementById('coordX').value = Math.round(x);
-        document.getElementById('coordY').value = Math.round(y);
+            if(action === 'PLANTING') {
+                plantInput.removeAttribute('readonly');
+                plantInput.value = '';
+            } else {
+                plantInput.setAttribute('readonly', 'readonly');
+                plantInput.value = '';
+            }
+        }
 
-        const marker = document.getElementById('marker');
-        marker.innerText = currentIcon;
+        // Обработка клика по карте для новой задачи
+        map.addEventListener('click', function (e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
 
-        // Центрирование маркера
-        setTimeout(() => {
-            const width = marker.offsetWidth;
-            const height = marker.offsetHeight;
-            marker.style.left = (x - width / 2) + 'px';
-            marker.style.top = (y - height / 2) + 'px';
-        }, 0);
-    });
-  </script>
+            // Устанавливаем координаты в скрытые поля
+            document.getElementById('coordX').value = Math.round(x);
+            document.getElementById('coordY').value = Math.round(y);
+
+            // Позиционируем маркер задачи
+            taskMarker.innerText = currentIcon;
+            taskMarker.style.left = (x - 15) + 'px'; // 15px = половина размера иконки
+            taskMarker.style.top = (y - 15) + 'px';
+            taskMarker.style.display = 'block';
+        });
+
+        // Функция для отображения существующих деревьев
+        function renderTrees() {
+            // trees должен быть передан из Thymeleaf
+            const trees = /*[[${trees}]]*/ [];
+
+            // Очищаем контейнер
+            markersContainer.innerHTML = '';
+
+            // Добавляем каждое дерево
+            trees.forEach(tree => {
+                const marker = document.createElement('div');
+                marker.className = 'tree-marker';
+                marker.dataset.id = tree.id;
+                marker.style.position = 'absolute';
+                marker.style.left = (tree.coordX - 20) + 'px'; // 20px = половина ширины картинки
+                marker.style.top = (tree.coordY - 20) + 'px'; // 20px = половина высоты картинки
+
+                // Создаем изображение дерева
+                const img = document.createElement('img');
+                img.src = '/assets/plants/' + tree.plant.imageFilename;
+                img.style.width = '40px';
+                img.style.height = '40px';
+                img.style.objectFit = 'contain';
+                img.style.pointerEvents = 'none';
+
+                // Добавляем всплывающую подсказку
+                img.title = tree.plant.name + ' (ID: ' + tree.id + ')';
+
+                marker.appendChild(img);
+                markersContainer.appendChild(marker);
+            });
+        }
+
+        // Инициализация при загрузке страницы
+        window.addEventListener('load', function() {
+            updatePlantField();
+            renderTrees(); // или renderTreesWithThymeleaf()
+
+            // Ресайз картинки (если нужно)
+            if (map.complete) {
+                initMapSize();
+            } else {
+                map.addEventListener('load', initMapSize);
+            }
+        });
+    </script>
 </section>
 </body>
 </html>
